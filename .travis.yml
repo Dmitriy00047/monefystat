@@ -8,4 +8,4 @@ services:
 
 script:
   - flake8
-  - python tests.py
+  - python test
