@@ -1,8 +1,0 @@
-pipenv
-sanic
-sqlalchemy
-telepot
-flake8
-oauth2client
-alembic
-dropbox
