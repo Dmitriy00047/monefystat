@@ -8,8 +8,8 @@ services:
 
 install:
   - pip install pipenv
-  - pipenv install
+  - pipenv install --dev
 
 script:
-  - flake8
-  - python tests
+  - flake8 --max-line-length=120
+  - python test/tests.py

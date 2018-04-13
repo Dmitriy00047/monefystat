@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 pipenv = "*"
 telepot = "*"
-"flake8" = "*"
 "oauth2client" = "*"
 alembic = "*"
 dropbox = "*"
@@ -15,6 +14,8 @@ SQLAlchemy = "*"
 aiopg = "*"
 
 [dev-packages]
+"flake8" = "*"
+"pytest" = "*"
 
 [requires]
 python_version = "3.6"
