@@ -12,6 +12,7 @@ alembic = "*"
 dropbox = "*"
 Sanic = "*"
 SQLAlchemy = "*"
+aiopg = "*"
 
 [dev-packages]
 
