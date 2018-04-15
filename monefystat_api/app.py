@@ -32,7 +32,6 @@ async def webhook_reciver(request):
     obj.get_newest_monefy_data()
     return json(
         {'message': ''},
-        headers={'X-Served-By': 'sanic'},
         status=200
     )
 
