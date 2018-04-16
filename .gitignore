@@ -101,5 +101,9 @@ ENV/
 # mypy
 .mypy_cache/
 
+#vs code cofigs
+.vscode
+
 # Keys and Tokens
-Keys.py
+keys.py
+
