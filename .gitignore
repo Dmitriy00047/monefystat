@@ -102,3 +102,7 @@ ENV/
 
 #vs code cofigs
 .vscode
+
+# Keys and Tokens
+keys.py
+
