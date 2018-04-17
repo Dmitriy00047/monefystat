@@ -2,9 +2,9 @@ from ..database.models import Transaction
 from sqlalchemy.orm import Session
 
 
-def insert_transactions(transactions, engine):
+def insert_transactions(transactions, engine) -> None:
     '''
-        Inserts prepared data to database. 
+        Inserts prepared data to database.
         All data must correspond with Transaction model.
 
         :param transactions: list of lists of converted data from csv file.
