@@ -7,7 +7,7 @@
 * MON-24 - Set up project image for postgresql
 * MON-25 - Create dockerfile for project
 * MON-26 - Create docker-compose
-* MON-28 - Transaction model was added
 * MON-27 - Async PSQL driver was added
+* MON-28 - Transaction model was added
 * MON-29 - Create functions for create/delete database
 * MON-30 - Setup Telegram bot
