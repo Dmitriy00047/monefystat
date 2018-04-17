@@ -108,4 +108,4 @@ ENV/
 keys.py
 
 # configs
-config.py
+.config.py
