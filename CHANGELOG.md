@@ -1,3 +1,4 @@
+* MON-1  - Created repository with heirarchy and CI service
 * MON-17 - Set up project requirements
 * MON-19 - drop box app has created (read README.md)
 * MON-20 - data_provider.DataProvider class has created
@@ -10,3 +11,4 @@
 * MON-28 - Transaction model was added
 * MON-27 - Async PSQL driver was added
 * MON-30 - Setup Telegram bot
+* MON-37 - Map file and put it into database
