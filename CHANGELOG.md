@@ -11,3 +11,4 @@
 * MON-27 - Async PSQL driver was added
 * MON-30 - Setup Telegram bot
 * MON-38 - Create endpoints for create/drop database
+* MON-34 - Create endpoint /data
