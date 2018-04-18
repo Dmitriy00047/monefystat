@@ -17,10 +17,10 @@ class DataProvider(object):
                  working_directory='/',
                  mode='auto'):
         '''
-        :param access_token: dropbox API token.
-        :param download_path: path to folder for providing data (sould include file name).
-        :param working_directory: path to working directory on dropbox where monefy data should be placed.
-        :param mode: using for switching workflow, can take only two values:
+        :param str access_token: dropbox API token.
+        :param str download_path: path to folder for providing data (sould include file name).
+        :param str working_directory: path to working directory on dropbox where monefy data should be placed.
+        :param str mode: using for switching workflow, can take only two values:
             'auto' - when dropbox working directory refreshing automatically,
             'manual' - when user refreshing dropbox working directory manually.
 
@@ -76,26 +76,24 @@ class DataProvider(object):
             self._mode = value
 
     def __get_newest_monefy_data_name_manual(self, list_of_files: list) -> str or None:
-        newest_file_index = -1
-        newest_file_date = datetime(1, 1, 1)
+        list_of_elements = []
 
-        for i in range(len(list_of_files)):
-            if list_of_files[i].startswith('Monefy.Data'):
-                current_file_date = re.search(r'(\d{1,2}(\-|\.)\d{1,2}(\-|\.)\d{2})', list_of_files[i]).group()
+        for element in list_of_files:
+            if element.startswith('Monefy.Data'):
+                current_file_date = re.search(r'(\d{1,2}(\-|\.)\d{1,2}(\-|\.)\d{2})', element).group()
                 # parsing american date format
                 if current_file_date.find('-') > 0:
                     current_file_date = datetime.strptime(current_file_date, '%m-%d-%y')
-                # parsing european date format
+                    # parsing european date format
                 elif current_file_date.find('.') > 0:
                     current_file_date = datetime.strptime(current_file_date, '%d.%m.%y')
-                if current_file_date > newest_file_date:
-                    newest_file_date = current_file_date
-                    newest_file_index = i
 
-        if newest_file_index > 0:
-            return list_of_files[newest_file_index]
-        else:
-            return None
+                list_of_elements.append((current_file_date, element))
+
+        list_of_elements.sort(key=lambda tup: tup[0], reverse=True)
+
+        if list_of_elements:
+            return list_of_elements[0][1]
 
     def __get_newest_monefy_data_name_auto(self) -> str or None:
         if self._working_directory != '/':
@@ -110,12 +108,11 @@ class DataProvider(object):
             if entry.name.startswith('Monefy.Data'):
                 return entry.name
 
-        return None
-
     def get_files_list(self) -> list:
         '''
         This method returns list of file and folder names which contains in app folder.
 
+        :returns list: list of names of files.
         :raises: dropbox.exceptions.ApiError.
         '''
         result = []
@@ -133,7 +130,8 @@ class DataProvider(object):
         '''
         This method download file with 'file_name' to 'self.download_path'.
 
-        :param file_name: name of file to download.
+        :param str file_name: name of file to download.
+        :rtype: None
         :raises: dropbox.exceptions.ApiError.
         '''
         path_to_file = self._working_directory + '/' + file_name
@@ -143,6 +141,7 @@ class DataProvider(object):
         '''
         This method download newest monefy.data file to 'self.download_path'.
 
+        :rtype: None
         :raises: dropbox.exceptions.ApiError.
         '''
         newest_file_name = None
