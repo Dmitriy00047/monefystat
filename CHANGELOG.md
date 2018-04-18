@@ -12,4 +12,8 @@
 * MON-28 - Transaction model was added
 * MON-29 - Create functions for create/delete database
 * MON-30 - Setup Telegram bot
+* MON-32 - refactor __get_newest_monefy_data_name_manual() for more readability
+* MON-34 - Create endpoint /data
+* MON-36 - Validate data in file
 * MON-37 - Map file and put it into database
+* MON-38 - Create endpoints for create/drop database
