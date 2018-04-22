@@ -1,8 +1,21 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Float, Boolean, Integer, String, Date, DateTime
+from sqlalchemy import Column, Float, Boolean, Integer, String, Date, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 Base = declarative_base()
+
+
+class Category(Base):
+    __tablename__ = 'category'
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    timestamp = Column('timestamp', DateTime, default=datetime.utcnow())
+    title = Column('title', String(255), nullable=False)
+    amount = Column('amount', Float, nullable=True)
+    start_date = Column('start_date', Date, nullable=True)
+    end_date = Column('end_date', Date, nullable=True)
+    transaction = relationship("Transaction")
 
 
 class Transaction(Base):
@@ -11,7 +24,7 @@ class Transaction(Base):
     timestamp = Column('timestamp', DateTime, default=datetime.utcnow())
     transaction_date = Column('transaction_date', Date)
     account = Column('account', String)
-    category = Column('category', String)
+    category = Column('category', Integer, ForeignKey('category.id'))
     amount = Column('amount', Float)
     currency = Column('currency', String)
     converted_amount = Column('converted_amount', Float)
