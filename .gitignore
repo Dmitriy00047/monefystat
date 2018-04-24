@@ -13,7 +13,7 @@ env/
 build/
 develop-eggs/
 dist/
-downloads/
+downloads/*.csv
 eggs/
 .eggs/
 lib/
@@ -104,8 +104,5 @@ ENV/
 #vs code cofigs
 .vscode
 
-# Keys and Tokens
-keys.py
-
-# configs
-config.py
+#secret information
+secret.sh

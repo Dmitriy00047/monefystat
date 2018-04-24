@@ -1,8 +1,10 @@
-from ..database.models import Transaction
+from database.models import Transaction
 from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from config import db
 
 
-def insert_transactions(transactions, engine) -> None:
+def insert_transactions(transactions) -> None:
     '''
         Inserts prepared data to database.
         All data must correspond with Transaction model.
@@ -10,6 +12,7 @@ def insert_transactions(transactions, engine) -> None:
         :param transactions: list of lists of converted data from csv file.
         :param engine: connected database engine.
     '''
+    engine = create_engine('postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db))
     session = Session(bind=engine)
     session.add_all([
         Transaction(
@@ -26,3 +29,4 @@ def insert_transactions(transactions, engine) -> None:
         for transaction in transactions
     ])
     session.commit()
+    engine.dispose()

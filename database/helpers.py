@@ -1,11 +1,11 @@
 import psycopg2
 from aiopg.sa import create_engine
-from config import db_config
+from config import db
 from sqlalchemy.schema import CreateTable, DropTable
 from database.models import Transaction
 
-dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db_config)
-dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db_config)
+dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
+dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
 
 
 async def _create_default_engine():
@@ -25,7 +25,7 @@ async def create_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("create database {}".format(db_config['dbname']))
+            await connection.execute("create database {}".format(db['dbname']))
             await _prepare_tables()
 
 
@@ -34,7 +34,7 @@ async def drop_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("drop database {}".format(db_config['dbname']))
+            await connection.execute("drop database {}".format(db['dbname']))
 
 
 async def _prepare_tables():
@@ -71,11 +71,10 @@ async def get_all_data():
     :return list: list of dictionaries with all data
     """
     engine = await _create_engine()
-    async with engine:
-        async with engine.acquire() as connection:
-            query = 'select * from Transaction'
-            result = await connection.execute(query)
-            return _convert_resultproxy_to_dictionary(result)
+    async with engine.acquire() as connection:
+        query = 'select * from transaction'
+        result = await connection.execute(query)
+        return _convert_resultproxy_to_dictionary(result)
 
 
 def _convert_resultproxy_to_dictionary(result_proxy):

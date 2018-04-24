@@ -1,18 +1,12 @@
-from os.path import dirname, abspath
-from json import dumps
-
 from sanic import Sanic
-from sanic.response import json
-from sanic.response import text
-from sanic.response import stream
+from sanic.response import json, text
 from sanic.request import RequestParameters
+from config import dropbox, path
+from transport.data_provider import DataProvider
+from database import helpers
+from processor import validator_data, mapper
 
-from ..keys import DROPBOX_TOKEN
-from ..transport.data_provider import DataProvider
-from .service_resource import drop_db_endpoint, create_db_endpoint, get_all_data_endpoint
 
-PATH = dirname(dirname(abspath(__file__))) + '/downloads/Monefy_data.csv'
-DIR = '/monefy'
 app = Sanic()
 
 
@@ -32,17 +26,17 @@ async def webhook_enable(request):
 # endpoint for downloading file from dropbox
 @app.post("/webhook")
 async def webhook_reciver(request):
-    obj = DataProvider(DROPBOX_TOKEN, PATH)
+    obj = DataProvider(dropbox['token'], path)
     obj.get_newest_monefy_data()
-    return json(
-        {'message': ''},
-        status=200
-    )
+    data = validator_data.validate_data(obj.download_path)
+    if data:
+        mapper.insert_transactions(data)
+    return json({"message": "updated"}, status=200)
 
 
 @app.get("/create_db")
 async def create_endpoint(request):
-    create_db_endpoint()
+    await helpers.create_db()
     return json(
         {"message": "DB created"},
         status=200
@@ -51,7 +45,7 @@ async def create_endpoint(request):
 
 @app.get("/drop_db")
 async def drop_endpoint(request):
-    drop_db_endpoint()
+    await helpers.drop_db()
     return json(
         {"message": "DB droped"},
         status=200
@@ -60,12 +54,8 @@ async def drop_endpoint(request):
 
 @app.get("/data")
 async def data_endpoint(request):
-    async def streaming_from_db(response):
-        result = get_all_data_endpoint()
-        for i, data in enumerate(result):
-            data = dumps(result[i])
-            response.write(data)
-    return stream(streaming_from_db, content_type='json')
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    data = await helpers.get_all_data()
+    return json(
+        data,
+        status=200
+    )
