@@ -1,5 +1,5 @@
-from ..monefystat_api.app import app
 import unittest
+from monefystat_api.app import app
 
 
 class Create_db_test(unittest.TestCase):

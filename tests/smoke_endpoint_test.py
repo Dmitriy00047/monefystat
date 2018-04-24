@@ -1,4 +1,4 @@
-from ..monefystat_api.app import app
+from monefystat_api.app import app
 import unittest
 
 

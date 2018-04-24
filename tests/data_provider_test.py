@@ -1,5 +1,5 @@
-from transport.data_provider import DataProvider
 import unittest
+from transport.data_provider import DataProvider
 
 
 class DataProviderTest(unittest.TestCase):
