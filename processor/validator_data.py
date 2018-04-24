@@ -37,7 +37,8 @@ def validate_data(file_csv) -> list:
                 # the following two lines convert str with date into datetime.date
                 current_string[0] = current_string[0].split('/')[::-1]
                 if current_string[0] != ['']:
-                    current_string[0] = date(int(current_string[0][0]), int(current_string[0][1]), int(current_string[0][2]))
+                    current_string[0] = date(
+                        int(current_string[0][0]), int(current_string[0][1]), int(current_string[0][2]))
 
                 # convert the rest of the fields
                 for i in range(1, len(types)):
