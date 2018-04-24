@@ -11,41 +11,23 @@ def insert_transactions(transactions, engine) -> None:
         :param engine: connected database engine.
     '''
     session = Session(bind=engine)
-    session.add_all([
-        Transaction(
-            transaction_date=transaction[0],
-            account=transaction[1],
-            category=add_category_2_bd(transaction[2].strip().lower(), engine),
-            amount=abs(transaction[3]),
-            currency=transaction[4],
-            converted_amount=abs(transaction[5]),
-            converted_currency=transaction[6],
-            description=transaction[7],
-            is_debet=(transaction[3] > 0)
-        )
-        for transaction in transactions
-    ])
-    session.commit()
-
-
-def add_category_2_bd(category, engine: str) -> int:
-    '''
-        Inserts prepared data to the db table.
-        All data must correspond with Category model.
-
-        :param category: the name of the category.
-        :param engine: connected database engine.
-    '''
-    session = Session(bind=engine)
-    model = Category()
-    if check_category_exist(category, session):
-        model.title = category
+    for transaction in transactions:
+        category = transaction[2].strip().lower()
+        model = Transaction()
+        model.transaction_date = transaction[0]
+        model.account = transaction[1]
+        if check_category_exist(category, session):
+            model.category = session.add(Category(title=category))
+        else:
+            model.category = get_category_id(category, session)
+        model.amount = abs(transaction[3])
+        model.currency = transaction[4]
+        model.converted_amount = abs(transaction[5])
+        model.converted_currency = transaction[6]
+        model.description = transaction[7]
+        model.is_debet = (transaction[3] > 0)
         session.add(model)
-        session.commit()
-        session.flush()
-        return model.id
-    else:
-        return get_category_id(category, session)
+    session.commit()
 
 
 def check_category_exist(category: str, session: object) -> bool:
