@@ -28,6 +28,7 @@ def insert_transactions(transactions, engine) -> None:
         model.is_debet = (transaction[3] > 0)
         session.add(model)
     session.commit()
+    session.close()
 
 
 def check_category_exist(category: str, session: object) -> bool:
