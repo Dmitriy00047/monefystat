@@ -1,5 +1,6 @@
 from database.models import Transaction, Category
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import insert
 
 
 def insert_transactions(transactions, engine) -> None:
@@ -10,38 +11,57 @@ def insert_transactions(transactions, engine) -> None:
         :param transactions: list of lists of converted data from csv file.
         :param engine: connected database engine.
     '''
+    connection = engine.connect()
     session = Session(bind=engine)
     for transaction in transactions:
         category = transaction[2].strip().lower()
-        model = Transaction()
-        model.transaction_date = transaction[0]
-        model.account = transaction[1]
-        if check_category_exist(category, session):
-            model.category = session.add(Category(title=category))
-        else:
-            model.category = get_category_id(category, session)
-        model.amount = abs(transaction[3])
-        model.currency = transaction[4]
-        model.converted_amount = abs(transaction[5])
-        model.converted_currency = transaction[6]
-        model.description = transaction[7]
-        model.is_debet = (transaction[3] > 0)
-        session.add(model)
-    session.commit()
+        category_id = insert_category_2_bd(category, connection, session)
+        insert_transaction = insert(Transaction).values(
+            transaction_date=transaction[0],
+            account=transaction[1],
+            category=category_id,
+            amount=abs(transaction[3]),
+            currency=transaction[4],
+            converted_amount=abs(transaction[5]),
+            converted_currency=transaction[6],
+            description=transaction[7],
+            is_debet=(transaction[3] > 0)
+        )
+        on_update_transaction = insert_transaction.on_conflict_do_update(
+            constraint='tr_constraint',
+            set_=dict(
+                category=category_id,
+                currency=transaction[4],
+                converted_amount=abs(transaction[5]),
+                converted_currency=transaction[6],
+                is_debet=(transaction[3] > 0)
+            )
+        )
+        connection.execute(on_update_transaction)
+    connection.close()
     session.close()
 
 
-def check_category_exist(category: str, session: object) -> bool:
+def insert_category_2_bd(category: str, connection, session: object) -> int:
     '''
         Check that category exists in the db table.
+        If not - insert category to bd.
 
         :param category: the name of the category.
+        :param connection: connection string to bd.
         :param session: Session object.
     '''
-    res = session.query(Category).filter(Category.title == category).all()
-    if not res:
-        return True
-    return False
+    insert_category = insert(Category).values(
+        title=category
+    )
+    do_nothing_category = insert_category.on_conflict_do_nothing(
+        index_elements=['title']
+    )
+    res = connection.execute(do_nothing_category)
+    if res.inserted_primary_key:
+        return res.inserted_primary_key[0]
+    else:
+        return get_category_id(category, session)
 
 
 def get_category_id(category: str, session: object) -> int:
