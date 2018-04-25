@@ -17,3 +17,4 @@
 * MON-36 - Validate data in file
 * MON-37 - Map file and put it into database
 * MON-38 - Create endpoints for create/drop database
+* MON-46 -  Create model for categories
