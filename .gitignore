@@ -1,4 +1,5 @@
 # Byte-compiled / optimized / DLL files
+/.idea/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -12,7 +13,7 @@ env/
 build/
 develop-eggs/
 dist/
-downloads/
+downloads/*.csv
 eggs/
 .eggs/
 lib/
@@ -99,3 +100,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+#vs code cofigs
+.vscode
+
+#secret information
+secret.sh

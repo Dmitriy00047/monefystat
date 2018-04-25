@@ -6,6 +6,10 @@ python:
 services:
   - docker
 
+install:
+  - pip install pipenv
+  - pipenv install --dev
+
 script:
-  - flake8
-  - python tests
+  - flake8 --max-line-length=120
+  - python -m unittest tests/*
