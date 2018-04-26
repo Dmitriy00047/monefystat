@@ -40,14 +40,12 @@ async def create_endpoint(request):
     )
 
 
-
 async def drop_endpoint(request):
     await helpers.drop_db()
     return json(
         {"message": "DB droped"},
         status=200
     )
-
 
 
 async def data_endpoint(request):
