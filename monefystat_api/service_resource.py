@@ -69,7 +69,6 @@ async def get_data_for_defined_period_endpoint(request):
     )
 
 
-@app.get("/custom_period")
 async def get_data_for_custom_period_endpoint(request):
     category = request.args['category'][0]
     start_date = request.args['start_date'][0]
