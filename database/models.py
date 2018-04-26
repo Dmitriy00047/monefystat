@@ -22,7 +22,7 @@ class Category(Base):
 class Transaction(Base):
     __tablename__ = "transaction"
     __table_args__ = (
-        UniqueConstraint('date', 'account', 'amount', 'description', name='tr_constraint'),
+        UniqueConstraint('transaction_date', 'account', 'amount', 'description', name='tr_constraint'),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)

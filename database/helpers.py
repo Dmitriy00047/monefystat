@@ -1,12 +1,18 @@
 import psycopg2
+from datetime import datetime, timedelta
 from aiopg.sa import create_engine
 from config import db
 from sqlalchemy.schema import CreateTable, DropTable
+from sqlalchemy import select, between, and_
 from database.models import Transaction
+from database.models import Category
+from sqlalchemy import create_engine as cren
 
-dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
-dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
+# dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
+# dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
 
+dsn_def = 'postgresql://postgres:password@localhost:5432'
+dsn = 'postgresql://postgres:password@localhost:5432/monefystat'
 
 async def _create_default_engine():
     """Asynchronous function for creating default engine."""
@@ -39,7 +45,7 @@ async def drop_db():
 
 async def _prepare_tables():
     """Asynchronous function for creating tables in database."""
-    tables = [Transaction.__table__]
+    tables = [Category.__table__, Transaction.__table__]
     engine = await _create_engine()
     async with engine:
         async with engine.acquire() as connection:
@@ -88,3 +94,39 @@ def _convert_resultproxy_to_dictionary(result_proxy):
     for row in result_proxy:
         dict_result.append(dict(row))
     return dict_result
+
+async def get_data_define_period(category_name, period):
+    engine = cren(dsn)
+    conn = engine.connect()
+    cur_date = str(datetime.date(datetime.now()))
+    period_date = str(datetime.date(datetime.now()) - timedelta(int(period)))
+    category_name = list(map(lambda x: x.replace(" ", ""), category_name[:7]))
+    category_name = list(map(lambda x: x.replace("\xa0", ""), category_name[:7]))
+    category_name = "".join(category_name)
+    s = select([Category.id]).where(Category.title == category_name)
+    result = conn.execute(s)
+    id = _convert_resultproxy_to_dictionary(result)[0]['id']
+    q = """select * from transaction where category={} 
+    and transaction_date BETWEEN '{}' and '{}'""".format(id, period_date, cur_date)
+    # q = select([Transaction]).where(
+    #     and_(
+    #             (Transaction.category == id)
+    #             ((Transaction.transaction_date.between(period_date, cur_date)))))
+    result = conn.execute(q)
+    return _convert_resultproxy_to_dictionary(result)
+
+
+
+async def get_data_custom_period(category_name, start_date, end_date):
+    engine = cren(dsn)
+    conn = engine.connect()
+    category_name = list(map(lambda x: x.replace(" ", ""), category_name[:7]))
+    category_name = list(map(lambda x: x.replace("\xa0", ""), category_name[:7]))
+    category_name = "".join(category_name)
+    s = select([Category.id]).where(Category.title == category_name)
+    result = conn.execute(s)
+    id = _convert_resultproxy_to_dictionary(result)[0]['id']
+    q = """select * from transaction where category={} 
+        and transaction_date BETWEEN '{}' and '{}'""".format(id, start_date, end_date)
+    result = conn.execute(q)
+    return _convert_resultproxy_to_dictionary(result)
