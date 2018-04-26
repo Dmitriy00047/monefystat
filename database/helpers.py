@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from aiopg.sa import create_engine
 from config import db
 from sqlalchemy.schema import CreateTable, DropTable
-from sqlalchemy import select, between, and_
+from sqlalchemy import select
 from database.models import Transaction
 from database.models import Category
 from sqlalchemy import create_engine as cren
@@ -13,6 +13,7 @@ from sqlalchemy import create_engine as cren
 
 dsn_def = 'postgresql://postgres:password@localhost:5432'
 dsn = 'postgresql://postgres:password@localhost:5432/monefystat'
+
 
 async def _create_default_engine():
     """Asynchronous function for creating default engine."""
@@ -94,6 +95,7 @@ def _convert_resultproxy_to_dictionary(result_proxy):
     for row in result_proxy:
         dict_result.append(dict(row))
     return dict_result
+
 
 async def get_data_define_period(category_name, period):
     engine = cren(dsn)

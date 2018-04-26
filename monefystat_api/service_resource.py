@@ -31,7 +31,6 @@ async def webhook_reciver(request):
     return json({"message": "updated"}, status=200)
 
 
-
 async def create_endpoint(request):
     await helpers.create_db()
     return json(

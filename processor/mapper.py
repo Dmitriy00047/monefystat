@@ -2,7 +2,7 @@ from database.models import Transaction, Category
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import create_engine
-from config import db
+
 
 def insert_transactions(transactions) -> None:
     '''
