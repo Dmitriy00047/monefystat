@@ -106,7 +106,7 @@ async def get_data_define_period(category_name, period):
     s = select([Category.id]).where(Category.title == category_name)
     result = conn.execute(s)
     id = _convert_resultproxy_to_dictionary(result)[0]['id']
-    q = """select * from transaction where category={} 
+    q = """select * from transaction where category={}
     and transaction_date BETWEEN '{}' and '{}'""".format(id, period_date, cur_date)
     # q = select([Transaction]).where(
     #     and_(
@@ -114,7 +114,6 @@ async def get_data_define_period(category_name, period):
     #             ((Transaction.transaction_date.between(period_date, cur_date)))))
     result = conn.execute(q)
     return _convert_resultproxy_to_dictionary(result)
-
 
 
 async def get_data_custom_period(category_name, start_date, end_date):
@@ -126,7 +125,7 @@ async def get_data_custom_period(category_name, start_date, end_date):
     s = select([Category.id]).where(Category.title == category_name)
     result = conn.execute(s)
     id = _convert_resultproxy_to_dictionary(result)[0]['id']
-    q = """select * from transaction where category={} 
+    q = """select * from transaction where category={}
         and transaction_date BETWEEN '{}' and '{}'""".format(id, start_date, end_date)
     result = conn.execute(q)
     return _convert_resultproxy_to_dictionary(result)
