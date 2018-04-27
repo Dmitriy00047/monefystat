@@ -1,18 +1,14 @@
 import psycopg2
-from datetime import datetime
 from aiopg.sa import create_engine
 from config import db
-from sqlalchemy.schema import CreateTable, DropTable
 from sqlalchemy import select
-from database.models import Transaction
-from database.models import Category
-from sqlalchemy import create_engine as cren
+from sqlalchemy import create_engine as create_sync_engine
+from sqlalchemy.schema import CreateTable, DropTable
+from sqlalchemy.dialects.postgresql import insert
+from database.models import Transaction, Category
 
-# dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
-# dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
-
-dsn_def = 'postgresql://user:password@localhost:5432'
-dsn = 'postgresql://user:password@localhost:5432/monefystat'
+dsn_def = 'postgresql://{user}:{password}@{host}:{port}'.format(**db)
+dsn = 'postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db)
 
 
 async def _create_default_engine():
@@ -32,7 +28,7 @@ async def create_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("create database {}".format(db['dbname']))
+            await connection.execute("create database monefystat")
             await _prepare_tables()
 
 
@@ -41,7 +37,7 @@ async def drop_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("drop database {}".format(db['dbname']))
+            await connection.execute("drop database monefystat")
 
 
 async def _prepare_tables():
@@ -115,7 +111,7 @@ async def get_limit(category_name=None) -> list:
             }
         ]
     """
-    engine = cren(dsn)
+    engine = create_sync_engine(dsn)
     conn = engine.connect()
     if category_name:
         s = select([Category]).where(Category.title == category_name)
@@ -123,35 +119,45 @@ async def get_limit(category_name=None) -> list:
         s = select([Category])
 
     result = conn.execute(s)
+
     return _convert_resultproxy_to_dictionary(result)
 
 
-async def add_limit(title: str, limit: float, start_date: datetime, period: int, is_repeated: bool) -> None:
-    args = {
-        'title': title,
-        'limit': limit,
-        'start_date': start_date,
-        'period': period,
-        'is_repeated': is_repeated
-    }
-    category = Category.__table__
-    ins = category.insert().values(args)
-    engine = cren(dsn)
+async def upsert_limit(category_name, **kwargs) -> None:
+    """
+    Asynchronous function for inserting and updating data.
+
+    Warning: **kwargs must accept only the specified parameters.
+
+    :param str category_name: name of selecting category.
+    :param float limit: limit of categody.
+    :param datetime start_date: start day of limit.
+    :param int period: number of days for limit.
+    :param bool is_repeated: checking limit should be repeated for the same period.
+    :rtype: None
+    """
+    engine = create_sync_engine(dsn)
     conn = engine.connect()
-    conn.execute(ins)
+    ins = insert(Category).values(dict(title=category_name, **kwargs))
+
+    do_update_category = ins.on_conflict_do_update(index_elements=['title'], set_=kwargs)
+    conn.execute(do_update_category)
+    conn.close()
 
 
-async def update_limit(category_name: str, **kwargs):
+async def delete_limit(category_name: str) -> None:
+    """
+    Asynchronous function function for clearing limit.
+
+    :param str category_name: name of category to clean.
+    :rtype: None.
+    """
     category = Category.__table__
-    upd = category.update().where(Category.title == category_name).values(kwargs)
-    engine = cren(dsn)
-    conn = engine.connect()
-    conn.execute(upd)
-
-
-async def delete_limit(category_name: str):
-    category = Category.__table__
-    delete = category.delete().where(Category.title == category_name)
-    engine = cren(dsn)
+    delete = category.update().where(Category.title == category_name).values(limit=None,
+                                                                             start_date=None,
+                                                                             period=None,
+                                                                             is_repeated=None)
+    engine = create_sync_engine(dsn)
     conn = engine.connect()
     conn.execute(delete)
+    conn.close()
