@@ -56,9 +56,11 @@ async def data_endpoint(request):
 
 
 async def get_data_for_defined_period_endpoint(request):
-    category = request.args['category'][0]
-    period = request.args['period'][0]
-    print(category, period)
+    try:
+        category = request.args['category'][0]
+        period = request.args['period'][0]
+    except KeyError:
+        return text('Blank spaces in request')
     data = await helpers.get_data_define_period(category, period)
     return json(
         data,
@@ -67,9 +69,12 @@ async def get_data_for_defined_period_endpoint(request):
 
 
 async def get_data_for_custom_period_endpoint(request):
-    category = request.args['category'][0]
-    start_date = request.args['start_date'][0]
-    end_date = request.args['end_date'][0]
+    try:
+        category = request.args['category'][0]
+        start_date = request.args['start_date'][0]
+        end_date = request.args['end_date'][0]
+    except KeyError:
+        return text('Blank spaces in request')
     data = await helpers.get_data_custom_period(category, start_date, end_date)
     return json(
         data,

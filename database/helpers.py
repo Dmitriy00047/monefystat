@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from aiopg.sa import create_engine
 from config import db
 from sqlalchemy.schema import CreateTable, DropTable
-from sqlalchemy import select
+from sqlalchemy import select, and_, between
 from database.models import Transaction
 from database.models import Category
-from sqlalchemy import create_engine as cren
+from sqlalchemy import create_engine as alchemy_create_engine 
 
 # dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
 # dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
@@ -98,36 +98,59 @@ def _convert_resultproxy_to_dictionary(result_proxy):
 
 
 async def get_data_define_period(category_name, period):
-    engine = cren(dsn)
+    """
+    Function for getting all data for specified category and period(days) from database.
+    :param str category_name: bytearray with name of category
+    :param str period: some digit which represent some period in past from current date
+    """
+    engine = alchemy_create_engine(dsn)
     conn = engine.connect()
     cur_date = str(datetime.date(datetime.now()))
     period_date = str(datetime.date(datetime.now()) - timedelta(int(period)))
     category_name = list(map(lambda x: x.replace(" ", ""), category_name[:7]))
     category_name = list(map(lambda x: x.replace("\xa0", ""), category_name[:7]))
     category_name = "".join(category_name)
-    s = select([Category.id]).where(Category.title == category_name)
-    result = conn.execute(s)
-    id = _convert_resultproxy_to_dictionary(result)[0]['id']
-    q = """select * from transaction where category={}
-    and transaction_date BETWEEN '{}' and '{}'""".format(id, period_date, cur_date)
-    # q = select([Transaction]).where(
-    #     and_(
-    #             (Transaction.category == id)
-    #             ((Transaction.transaction_date.between(period_date, cur_date)))))
-    result = conn.execute(q)
+    id_query = select([Category.id]).where(Category.title == category_name)
+    result = conn.execute(id_query)
+    try:
+        id = _convert_resultproxy_to_dictionary(result)[0]['id']
+    except IndexError:
+        return 'There is no such category'
+    data_query = select([Transaction]).where(
+        and_(
+            Transaction.category == id,
+            (Transaction.transaction_date.between(period_date, cur_date))
+            )
+        )
+    result = conn.execute(data_query)
     return _convert_resultproxy_to_dictionary(result)
 
 
 async def get_data_custom_period(category_name, start_date, end_date):
-    engine = cren(dsn)
+    try:
+        s_date = datetime.strptime(start_date, "%Y-%m-%d")
+        e_date = datetime.strptime(end_date, "%Y-%m-%d")
+        if s_date > e_date:
+            start_date, end_date = end_date, start_date
+    except ValueError:
+        return "Invalid dates"
+
+    engine = alchemy_create_engine(dsn)
     conn = engine.connect()
     category_name = list(map(lambda x: x.replace(" ", ""), category_name[:7]))
     category_name = list(map(lambda x: x.replace("\xa0", ""), category_name[:7]))
     category_name = "".join(category_name)
-    s = select([Category.id]).where(Category.title == category_name)
-    result = conn.execute(s)
-    id = _convert_resultproxy_to_dictionary(result)[0]['id']
-    q = """select * from transaction where category={}
-        and transaction_date BETWEEN '{}' and '{}'""".format(id, start_date, end_date)
-    result = conn.execute(q)
+    id_query = select([Category.id]).where(Category.title == category_name)
+    result = conn.execute(id_query)
+    try:
+        id = _convert_resultproxy_to_dictionary(result)[0]['id']
+    except IndexError:
+        return 'There is no such category'
+    data_query = select([Transaction]).where(
+        and_(
+            Transaction.category == id,
+            (Transaction.transaction_date.between(start_date, end_date))
+            )
+        )
+    result = conn.execute(data_query)
     return _convert_resultproxy_to_dictionary(result)
