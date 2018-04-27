@@ -1,6 +1,7 @@
 import psycopg2
 from aiopg.sa import create_engine
 from config import db
+from typing import Dict, List
 from sqlalchemy import select
 from sqlalchemy import create_engine as create_sync_engine
 from sqlalchemy.schema import CreateTable, DropTable
@@ -93,7 +94,7 @@ def _convert_resultproxy_to_dictionary(result_proxy):
     return dict_result
 
 
-async def get_limit(category_name=None) -> list:
+async def get_limit(category_name=None) -> List[Dict]:
     """
     Asynchronous function for getting data from category table.
 
