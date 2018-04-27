@@ -1,11 +1,11 @@
 import psycopg2
-from aiopg.sa import create_engine
-from config import db
 from typing import Dict, List
+from aiopg.sa import create_engine
 from sqlalchemy import select
 from sqlalchemy.schema import CreateTable, DropTable
 from sqlalchemy.dialects.postgresql import insert
 from database.models import Transaction, Category
+from config import db
 
 dsn_def = 'postgresql://{user}:{password}@{host}:{port}'.format(**db)
 dsn = 'postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db)
@@ -28,7 +28,7 @@ async def create_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("create database monefystat")
+            await connection.execute("create database {dbname}".format(**db))
             await _prepare_tables()
 
 
@@ -37,7 +37,7 @@ async def drop_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("drop database monefystat")
+            await connection.execute("drop database {dbname}".format(**db))
 
 
 async def _prepare_tables():
