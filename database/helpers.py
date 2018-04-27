@@ -3,7 +3,6 @@ from aiopg.sa import create_engine
 from config import db
 from typing import Dict, List
 from sqlalchemy import select
-from sqlalchemy import create_engine as create_sync_engine
 from sqlalchemy.schema import CreateTable, DropTable
 from sqlalchemy.dialects.postgresql import insert
 from database.models import Transaction, Category
@@ -112,16 +111,16 @@ async def get_limit(category_name=None) -> List[Dict]:
             }
         ]
     """
-    engine = create_sync_engine(dsn)
-    conn = engine.connect()
-    if category_name:
-        s = select([Category]).where(Category.title == category_name)
-    else:
-        s = select([Category])
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            if category_name:
+                s = select([Category]).where(Category.title == category_name)
+            else:
+                s = select([Category])
 
-    result = conn.execute(s)
-
-    return _convert_resultproxy_to_dictionary(result)
+            result = await connection.execute(s)
+            return _convert_resultproxy_to_dictionary(result)
 
 
 async def upsert_limit(category_name, **kwargs) -> None:
@@ -137,13 +136,12 @@ async def upsert_limit(category_name, **kwargs) -> None:
     :param bool is_repeated: checking limit should be repeated for the same period.
     :rtype: None
     """
-    engine = create_sync_engine(dsn)
-    conn = engine.connect()
-    ins = insert(Category).values(dict(title=category_name, **kwargs))
-
-    do_update_category = ins.on_conflict_do_update(index_elements=['title'], set_=kwargs)
-    conn.execute(do_update_category)
-    conn.close()
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            ins = insert(Category).values(dict(title=category_name, **kwargs))
+            do_update_category = ins.on_conflict_do_update(index_elements=['title'], set_=kwargs)
+            await connection.execute(do_update_category)
 
 
 async def delete_limit(category_name: str) -> None:
@@ -154,11 +152,11 @@ async def delete_limit(category_name: str) -> None:
     :rtype: None.
     """
     category = Category.__table__
-    delete = category.update().where(Category.title == category_name).values(limit=None,
-                                                                             start_date=None,
-                                                                             period=None,
-                                                                             is_repeated=None)
-    engine = create_sync_engine(dsn)
-    conn = engine.connect()
-    conn.execute(delete)
-    conn.close()
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            delete = category.update().where(Category.title == category_name).values(limit=None,
+                                                                                     start_date=None,
+                                                                                     period=None,
+                                                                                     is_repeated=None)
+            await connection.execute(delete)
