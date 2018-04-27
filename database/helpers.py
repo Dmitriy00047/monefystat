@@ -1,11 +1,14 @@
 import psycopg2
+from typing import Dict, List
 from aiopg.sa import create_engine
-from config import db
+from sqlalchemy import select
 from sqlalchemy.schema import CreateTable, DropTable
-from database.models import Transaction
+from sqlalchemy.dialects.postgresql import insert
+from database.models import Transaction, Category
+from config import db
 
-dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
-dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
+dsn_def = 'postgresql://{user}:{password}@{host}:{port}'.format(**db)
+dsn = 'postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db)
 
 
 async def _create_default_engine():
@@ -25,7 +28,7 @@ async def create_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("create database {}".format(db['dbname']))
+            await connection.execute("create database {dbname}".format(**db))
             await _prepare_tables()
 
 
@@ -34,12 +37,12 @@ async def drop_db():
     default_engine = await _create_default_engine()
     async with default_engine:
         async with default_engine.acquire() as connection:
-            await connection.execute("drop database {}".format(db['dbname']))
+            await connection.execute("drop database {dbname}".format(**db))
 
 
 async def _prepare_tables():
     """Asynchronous function for creating tables in database."""
-    tables = [Transaction.__table__]
+    tables = [Category.__table__, Transaction.__table__]
     engine = await _create_engine()
     async with engine:
         async with engine.acquire() as connection:
@@ -88,3 +91,72 @@ def _convert_resultproxy_to_dictionary(result_proxy):
     for row in result_proxy:
         dict_result.append(dict(row))
     return dict_result
+
+
+async def get_limit(category_name=None) -> List[Dict]:
+    """
+    Asynchronous function for getting data from category table.
+
+    :param str category_name: name of selecting category.
+    :return list: list of dictionaries like this:
+        [
+            {
+                'id': int,
+                'timestamp': datetime,
+                'title': category_name,
+                'limit': float,
+                'start_date': datetime,
+                'period': int,
+                'is_repeated': bool
+            }
+        ]
+    """
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            if category_name:
+                s = select([Category]).where(Category.title == category_name)
+            else:
+                s = select([Category])
+
+            result = await connection.execute(s)
+            return _convert_resultproxy_to_dictionary(result)
+
+
+async def upsert_limit(category_name, **kwargs) -> None:
+    """
+    Asynchronous function for inserting and updating data.
+
+    Warning: **kwargs must accept only the specified parameters.
+
+    :param str category_name: name of selecting category.
+    :param float limit: limit of categody.
+    :param datetime start_date: start day of limit.
+    :param int period: number of days for limit.
+    :param bool is_repeated: checking limit should be repeated for the same period.
+    :rtype: None
+    """
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            ins = insert(Category).values(dict(title=category_name, **kwargs))
+            do_update_category = ins.on_conflict_do_update(index_elements=['title'], set_=kwargs)
+            await connection.execute(do_update_category)
+
+
+async def delete_limit(category_name: str) -> None:
+    """
+    Asynchronous function function for clearing limit.
+
+    :param str category_name: name of category to clean.
+    :rtype: None.
+    """
+    category = Category.__table__
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            delete = category.update().where(Category.title == category_name).values(limit=None,
+                                                                                     start_date=None,
+                                                                                     period=None,
+                                                                                     is_repeated=None)
+            await connection.execute(delete)
