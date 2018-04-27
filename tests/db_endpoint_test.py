@@ -21,7 +21,7 @@ class Data_db_test(unittest.TestCase):
         request, response = app.test_client.put('/data')
         assert response.status == 405
 
-    
+
 class Defined_period_test(unittest.TestCase):
     def test_get_data_for_def_period_returns_200(self):
         params = {"category_name": "еда", "period": "7"}
