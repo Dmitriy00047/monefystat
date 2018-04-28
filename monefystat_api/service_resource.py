@@ -1,6 +1,7 @@
 from sanic import Sanic
 from sanic.response import json, text
 from sanic.request import RequestParameters
+from sanic.exceptions import abort
 from config import dropbox, path
 from transport.data_provider import DataProvider
 from database import helpers
@@ -60,8 +61,8 @@ async def get_data_for_defined_period_endpoint(request):
         category = request.args['category'][0]
         period = request.args['period'][0]
     except KeyError:
-        return text('Blank spaces in request')
-    data = await helpers.get_data_define_period(category, period)
+        abort(400, message='Blank space in query')
+    data = await helpers.get_data_period(category_name=category, period=period)
     return json(
         data,
         status=200
@@ -74,8 +75,8 @@ async def get_data_for_custom_period_endpoint(request):
         start_date = request.args['start_date'][0]
         end_date = request.args['end_date'][0]
     except KeyError:
-        return text('Blank spaces in request')
-    data = await helpers.get_data_custom_period(category, start_date, end_date)
+        abort(400, message='Blank space in query')
+    data = await helpers.get_data_period(category_name=category, start_date=start_date, end_date=end_date)
     return json(
         data,
         status=200
