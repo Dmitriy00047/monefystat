@@ -1,10 +1,10 @@
 import psycopg2
 from datetime import datetime, timedelta
 from aiopg.sa import create_engine
-from config import db
 from sqlalchemy.schema import CreateTable, DropTable
 from sqlalchemy import select, and_
 from database.models import Transaction, Category
+from config import db
 
 dsn_def = 'user={user} password={password} host={host} port={port}'.format(**db)
 dsn = 'user={user} dbname={dbname} host={host} password={password}'.format(**db)
