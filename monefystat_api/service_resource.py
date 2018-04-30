@@ -1,4 +1,3 @@
-from sanic import Sanic
 from sanic.response import json, text
 from sanic.request import RequestParameters
 from sanic.exceptions import abort
@@ -6,9 +5,6 @@ from config import dropbox, path
 from transport.data_provider import DataProvider
 from database import helpers
 from processor import validator_data, mapper
-
-
-app = Sanic()
 
 
 async def smoke_endpoint(request):

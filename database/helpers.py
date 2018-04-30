@@ -100,8 +100,8 @@ async def get_data_period(category_name: str, period=None, start_date=None, end_
     :param str start_date: start date of the period
     :param str end_date: end date of the period
     """
-    start_date, end_date = date_validator(period=period, start_date=start_date, end_date=end_date)
-    category_name = category_name_decoder(category_name)
+    start_date, end_date = _date_validator(period=period, start_date=start_date, end_date=end_date)
+    category_name = _category_name_decoder(category_name)
     engine = await _create_engine()
     async with engine.acquire() as connection:
         id_query = select([Category.id]).where(Category.title == category_name)
@@ -115,7 +115,7 @@ async def get_data_period(category_name: str, period=None, start_date=None, end_
     return _convert_resultproxy_to_dictionary(result)
 
 
-def category_name_decoder(category_name: str) -> str:
+def _category_name_decoder(category_name: str) -> str:
     """
     Function for decoding category name from bytearray to string
     :param str category_name: bytearray with name of category
@@ -126,7 +126,7 @@ def category_name_decoder(category_name: str) -> str:
     return category_name.lower()
 
 
-def date_validator(period=None, start_date=None, end_date=None) -> tuple:
+def _date_validator(period=None, start_date=None, end_date=None) -> tuple:
     """ Function for syncing to database format """
     if period:
         end_date = str(datetime.date(datetime.now()))
