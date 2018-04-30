@@ -16,11 +16,11 @@ class Category(Base):
     start_date = Column('start_date', Date, nullable=True)
     period = Column('period', Integer, nullable=True)
     is_repeated = Column('is_repeated', Boolean, nullable=True)
-    transaction = relationship("Transaction")
+    transaction = relationship('Transaction')
 
 
 class Transaction(Base):
-    __tablename__ = "transaction"
+    __tablename__ = 'transaction'
     __table_args__ = (
         UniqueConstraint('transaction_date', 'account', 'amount', 'description', name='tr_constraint'),
     )

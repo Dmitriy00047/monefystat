@@ -12,5 +12,5 @@ class Smoke_test(unittest.TestCase):
         assert response.status == 405
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

@@ -25,5 +25,5 @@ class Webhook_test(unittest.TestCase):
         assert request.json.get('key1') == 'value1'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
