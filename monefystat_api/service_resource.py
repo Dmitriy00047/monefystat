@@ -44,31 +44,60 @@ async def data_endpoint(request):
     return json(data)
 
 
+def _convert_limit_args(args):
+    additional_fields = ['category_name', 'limit',
+                         'start_date', 'period', 'is_repeated']
+    if set(args.keys()) == set(additional_fields):
+        category_name = args['category_name']
+        del args['category_name']
+        # tring to reinterpet in nessessary types
+        try:
+            args['limit'] = int(args['limit'])
+            args['start_date'] = datetime.datetime.strptime(
+                args['start_date'], '%d-%m-%Y').date()
+            args['period'] = int(args['period'])
+        except ValueError:
+            return None
+
+        args['is_repeated'] = args['is_repeated'].lower()
+        if args['is_repeated'] == 'true' or args['is_repeated'] == 'false':
+            args['is_repeated'] = (args['is_repeated'] == 'true')
+
+        if args['limit'] <= 0 or args['period'] <= 0:
+            return None
+
+        return category_name, args
+
+
 async def set_limit(request):
     '''Inserts or updates limit in database'''
-    additional_fields = ['category_name', 'limit', 'start_date', 'period', 'is_repeated']
-    if set(request.json.keys()) == set(additional_fields):
-        category_name = request.json['category_name']
-        limit = int(request.json['limit'])
-        start_date = datetime.datetime.strptime(request.json['start_date'], "%d-%m-%Y").date()
-        period = int(request.json['period'])
-        if request.json['is_repeated'].lower() == 'true' or request.json['is_repeated'].lower() == 'false':
-            isrepeated = request.json['is_repeated'].lower() == 'true'
-        else:
-            raise ValueError
-        await helpers.upsert_limit(
-            category_name, limit=limit, start_date=start_date, period=period, is_repeated=isrepeated)
-        return text('Success', status=200)
+    category_name, info = _convert_limit_args(request.json())
+    if info:
+        await helpers.upsert_limit(category_name, **info)
+        return json({'message': 'limit setted'})
     else:
-        abort(400, 'Bad request')
+        return json({'message': 'bad request args'}, status=400)
 
 
-async def get_limit():
-    pass
+async def get_limit(request):
+    '''Selects category info from database'''
+    data = await helpers.get_limit(request.args.get('category_name'))
+    if data:
+        return json(data)
+    else:
+        return json({'message': 'category doesnt exist'}, status=404)
 
 
-async def clear_limit():
-    pass
+async def clear_limit(request):
+    '''Clears limit data in category'''
+    category_name = request.json.get('category_name')
+    if not category_name:
+        return json({'message': 'category name is not specified'}, status=400)
+    elif helpers.get_limit(category_name):
+        await helpers.delete_limit(category_name)
+        return json({'message': 'category limit cleared'})
+    else:
+        return json({'message': 'category is not exists'}, status=404)
 
 
 async def get_data_for_defined_period_endpoint(request):

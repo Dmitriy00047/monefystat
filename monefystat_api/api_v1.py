@@ -8,7 +8,9 @@ from monefystat_api.service_resource import \
         data_endpoint, \
         get_data_for_custom_period_endpoint, \
         get_data_for_defined_period_endpoint, \
-        set_limit
+        set_limit, \
+        get_limit, \
+        clear_limit
 
 
 bp = Blueprint('api_v1')
@@ -22,3 +24,5 @@ bp.add_route(data_endpoint, '/data', methods=['GET'])
 bp.add_route(get_data_for_defined_period_endpoint, '/data_def_period', methods=['GET'])
 bp.add_route(get_data_for_custom_period_endpoint, '/data_custom_period', methods=['GET'])
 bp.add_route(set_limit, '/limit', methods=['PUT', 'POST'])
+bp.add_route(get_limit, '/limit', methods=['GET'])
+bp.add_route(clear_limit, '/limit', methods=['DELETE'])
