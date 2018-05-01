@@ -1,3 +1,5 @@
+from datetime import date
+from sanic.exceptions import abort
 from sanic.response import json, text
 from sanic.request import RequestParameters
 from config import dropbox, path
@@ -49,3 +51,29 @@ async def data_endpoint(request):
         data,
         status=200
     )
+
+
+async def set_limit(request):
+    '''Inserts or updates limit in database'''
+    additional_fields = ['category_name', 'limit', 'start_date', 'period', 'is_repeated']
+    if set(request.json.keys()) == set(additional_fields):
+        category_name = request.json.get('category_name')
+        limit = int(request.json['limit'])
+        start_date = 
+        del request.json['category_name']
+        try:
+            
+            await helpers.upsert_limit(category_name, **request.json)
+            return text('Success', status=200)
+        except Exception as e:
+            return text('erorka')
+    else:
+        abort(400, 'Bad request')
+
+
+async def get_limit():
+    pass
+
+
+async def clear_limit():
+    pass
