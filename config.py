@@ -6,7 +6,7 @@ path = dirname(__file__) + '/downloads/Monefy_data.csv'
 
 web = {
     'host': env.get('WEB_HOST', 'localhost'),
-    'port': int(env.get('WEB_PORT', '4000'))
+    'port': int(env.get('WEB_PORT', '3000'))
 }
 
 db = {

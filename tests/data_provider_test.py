@@ -55,5 +55,5 @@ class DataProviderTest(unittest.TestCase):
             self.classObj.mode = 'invalid'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

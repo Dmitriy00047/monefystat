@@ -6,7 +6,7 @@ class ValidationError(Exception):
 
 
 def validate_data(file_csv) -> list:
-    """
+    '''
     This method validate Monefy_data.csv and typing data from Monefy_data.csv
     The file that is called by this function is stored in the following way:
     '/downloads/Monefy_data.csv'
@@ -14,14 +14,14 @@ def validate_data(file_csv) -> list:
     :param .csv file_csv: path to file Monefy_data.csv
 
     :raises: ValidationError
-    """
+    '''
     types = [date, str, str, float, str, float, str, str]
     result = []
     # validate data
     with open(file_csv, 'r', encoding='utf8') as inf:
         title_file = inf.readline().strip()
         if title_file != 'date,account,category,amount,currency,converted amount,currency,description':
-            raise ValidationError("The content of the file is incorrect")
+            raise ValidationError('The content of the file is incorrect')
 
         # convert all the fields in a row by type
         for line in inf:
@@ -30,8 +30,8 @@ def validate_data(file_csv) -> list:
                 description = current_string[7] if len(current_string) == 8 else ''
 
                 # the following two lines to that the fields don't have spaces except the description field
-                current_string = list(map(lambda x: x.replace(" ", ""), current_string[:7]))
-                current_string = list(map(lambda x: x.replace("\xa0", ""), current_string[:7]))
+                current_string = list(map(lambda x: x.replace(' ', ''), current_string[:7]))
+                current_string = list(map(lambda x: x.replace('\xa0', ''), current_string[:7]))
                 current_string.append(description)
 
                 # the following two lines convert str with date into datetime.date
