@@ -56,22 +56,25 @@ def _convert_limit_args(args):
             args['start_date'] = datetime.datetime.strptime(
                 args['start_date'], '%d-%m-%Y').date()
             args['period'] = int(args['period'])
+            args['is_repeated'] = args['is_repeated'].lower()
+
+            if args['is_repeated'] == 'true' or args['is_repeated'] == 'false':
+                args['is_repeated'] = (args['is_repeated'] == 'true')
+            else:
+                return None, None
+
+            if args['limit'] <= 0 or args['period'] <= 0:
+                return None, None
+
         except ValueError:
-            return None
+            return None, None
 
-        args['is_repeated'] = args['is_repeated'].lower()
-        if args['is_repeated'] == 'true' or args['is_repeated'] == 'false':
-            args['is_repeated'] = (args['is_repeated'] == 'true')
-
-        if args['limit'] <= 0 or args['period'] <= 0:
-            return None
-
-        return category_name, args
+    return category_name, args
 
 
 async def set_limit(request):
     '''Inserts or updates limit in database'''
-    category_name, info = _convert_limit_args(request.json())
+    category_name, info = _convert_limit_args(request.json)
     if info:
         await helpers.upsert_limit(category_name, **info)
         return json({'message': 'limit setted'})
@@ -93,7 +96,7 @@ async def clear_limit(request):
     category_name = request.json.get('category_name')
     if not category_name:
         return json({'message': 'category name is not specified'}, status=400)
-    elif helpers.get_limit(category_name):
+    elif await helpers.get_limit(category_name):
         await helpers.delete_limit(category_name)
         return json({'message': 'category limit cleared'})
     else:

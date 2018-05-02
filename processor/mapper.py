@@ -1,7 +1,8 @@
-from database.models import Transaction, Category
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import create_engine
+from database.models import Transaction, Category
+from config import db
 
 
 def insert_transactions(transactions) -> None:
@@ -12,7 +13,7 @@ def insert_transactions(transactions) -> None:
         :param transactions: list of lists of converted data from csv file.
         :param engine: connected database engine.
     '''
-    engine = create_engine('postgresql://postgres:password@localhost:5432/monefystat')
+    engine = create_engine('postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db))
     connection = engine.connect()
     session = Session(bind=engine)
     for transaction in transactions:
