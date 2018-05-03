@@ -9,6 +9,6 @@ services:
     volumes:
      - .:/app
   db:
-    image: postgres:9.6
+    image: postgres:9.5.4
     ports:
       - "5432"

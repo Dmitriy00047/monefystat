@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import create_engine
+from sqlalchemy.sql import select
 from database.models import Transaction, Category
 from config import db
 
@@ -15,10 +15,9 @@ def insert_transactions(transactions) -> None:
     '''
     engine = create_engine('postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db))
     connection = engine.connect()
-    session = Session(bind=engine)
     for transaction in transactions:
         category = transaction[2].strip().lower()
-        category_id = insert_category_2_bd(category, connection, session)
+        category_id = insert_category_2_bd(category, connection)
         insert_transaction = insert(Transaction).values(
             transaction_date=transaction[0],
             account=transaction[1],
@@ -42,17 +41,15 @@ def insert_transactions(transactions) -> None:
         )
         connection.execute(on_update_transaction)
     connection.close()
-    session.close()
 
 
-def insert_category_2_bd(category: str, connection, session: object) -> int:
+def insert_category_2_bd(category: str, connection: object) -> int:
     '''
         Check that category exists in the db table.
         If not - insert category to bd.
 
         :param category: the name of the category.
         :param connection: connection string to bd.
-        :param session: Session object.
     '''
     insert_category = insert(Category).values(
         title=category
@@ -64,15 +61,16 @@ def insert_category_2_bd(category: str, connection, session: object) -> int:
     if res.inserted_primary_key:
         return res.inserted_primary_key[0]
     else:
-        return get_category_id(category, session)
+        return get_category_id(category, connection)
 
 
-def get_category_id(category: str, session: object) -> int:
+def get_category_id(category: str, connection: object) -> int:
     '''
         Get id from db table by the title.
 
         :param category: the name of the category.
-        :param session: Session object.
+        :param connection: connection string to bd.
     '''
-    res = session.query(Category).filter(Category.title == category).first()
-    return res.id
+    res = select([Category.id]).where(Category.title == category)
+    out = connection.execute(res)
+    return out.fetchone()[0]
