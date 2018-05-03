@@ -88,30 +88,38 @@ class LimitTest(unittest.TestCase):
         assert response.status == 400
 
     def test_delete_limit_exists(self):
-        body = {'category_name': 'taxi'}
-        request, response = app.test_client.delete('/limit', data=json.dumps(body))
+        data = {'category_name': 'taxi'}
+        request, response = app.test_client.delete('/limit', data=json.dumps(data))
         assert response.status == 200
 
     def test_delete_limit_not_exists(self):
-        body = {'category_name': 'car'}
-        request, response = app.test_client.delete('/limit', data=json.dumps(body))
+        data = {'category_name': 'car'}
+        request, response = app.test_client.delete('/limit', data=json.dumps(data))
         assert response.status == 404
 
     def test_get_concrete_limit(self):
-        pass
-
-    def test_get_all_limits(self):
-        pass
-
-
-class DropTest(unittest.TestCase):
-    def test_drop_returns_200(self):
-        request, response = app.test_client.get('/drop_db')
+        params = {'category_name': 'taxi'}
+        request, response = app.test_client.get('/limit', params=params)
         assert response.status == 200
 
-    def test_drop_put_not_allowed(self):
-        request, response = app.test_client.put('/drop_db')
-        assert response.status == 405
+    def test_get_all_limits(self):
+        request, response = app.test_client.get('/limit')
+        assert response.status == 200
+
+    def test_get_not_existig_limits(self):
+        params = {'category_name': 'tax'}
+        request, response = app.test_client.get('/limit', params=params)
+        assert response.status == 404
+
+
+# class DropTest(unittest.TestCase):
+#     def test_drop_returns_200(self):
+#         request, response = app.test_client.get('/drop_db')
+#         assert response.status == 200
+
+#     def test_drop_put_not_allowed(self):
+#         request, response = app.test_client.put('/drop_db')
+#         assert response.status == 405
 
 
 if __name__ == '__main__':
