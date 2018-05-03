@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pipenv = "*"
-telepot = "*"
+pyTelegramBotAPI = "*"
 "oauth2client" = "*"
 alembic = "*"
 dropbox = "*"
@@ -13,9 +13,14 @@ Sanic = "*"
 SQLAlchemy = "*"
 aiopg = "*"
 "psycopg2" = "*"
+setuptools = "*"
 
 [dev-packages]
 "flake8" = "*"
+"pytest" = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
