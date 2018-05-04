@@ -1,10 +1,10 @@
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import create_engine
 from sqlalchemy.sql import select
 from database.models import Transaction, Category
+from database.helpers import _create_engine
 
 
-def insert_transactions(transactions) -> None:
+async def insert_transactions(transactions) -> None:
     '''
         Inserts prepared data to database.
         All data must correspond with Transaction model.
@@ -12,37 +12,37 @@ def insert_transactions(transactions) -> None:
         :param transactions: list of lists of converted data from csv file.
         :param engine: connected database engine.
     '''
-    engine = create_engine('postgresql://postgres:password@localhost:5432/monefystat')
-    connection = engine.connect()
-    for transaction in transactions:
-        category = transaction[2].strip().lower()
-        category_id = insert_category_2_bd(category, connection)
-        insert_transaction = insert(Transaction).values(
-            transaction_date=transaction[0],
-            account=transaction[1],
-            category=category_id,
-            amount=abs(transaction[3]),
-            currency=transaction[4],
-            converted_amount=abs(transaction[5]),
-            converted_currency=transaction[6],
-            description=transaction[7],
-            is_debet=(transaction[3] > 0)
-        )
-        on_update_transaction = insert_transaction.on_conflict_do_update(
-            constraint='tr_constraint',
-            set_=dict(
-                category=category_id,
-                currency=transaction[4],
-                converted_amount=abs(transaction[5]),
-                converted_currency=transaction[6],
-                is_debet=(transaction[3] > 0)
-            )
-        )
-        connection.execute(on_update_transaction)
-    connection.close()
+    engine = await _create_engine()
+    async with engine:
+        async with engine.acquire() as connection:
+            for transaction in transactions:
+                category = transaction[2].strip().lower()
+                category_id = await insert_category_2_bd(category, connection)
+                insert_transaction = insert(Transaction).values(
+                    transaction_date=transaction[0],
+                    account=transaction[1],
+                    category=category_id,
+                    amount=abs(transaction[3]),
+                    currency=transaction[4],
+                    converted_amount=abs(transaction[5]),
+                    converted_currency=transaction[6],
+                    description=transaction[7],
+                    is_debet=(transaction[3] > 0)
+                )
+                on_update_transaction = insert_transaction.on_conflict_do_update(
+                    constraint='tr_constraint',
+                    set_=dict(
+                        category=category_id,
+                        currency=transaction[4],
+                        converted_amount=abs(transaction[5]),
+                        converted_currency=transaction[6],
+                        is_debet=(transaction[3] > 0)
+                    )
+                )
+                await connection.execute(on_update_transaction)
 
 
-def insert_category_2_bd(category: str, connection: object) -> int:
+async def insert_category_2_bd(category: str, connection: object) -> int:
     '''
         Check that category exists in the db table.
         If not - insert category to bd.
@@ -56,14 +56,14 @@ def insert_category_2_bd(category: str, connection: object) -> int:
     do_nothing_category = insert_category.on_conflict_do_nothing(
         index_elements=['title']
     )
-    res = connection.execute(do_nothing_category)
-    if res.inserted_primary_key:
-        return res.inserted_primary_key[0]
-    else:
-        return get_category_id(category, connection)
+    res = await connection.execute(do_nothing_category)
+    row = await res.first()
+    if not row:
+        return await get_category_id(category, connection)
+    return row['id']
 
 
-def get_category_id(category: str, connection: object) -> int:
+async def get_category_id(category: str, connection: object) -> int:
     '''
         Get id from db table by the title.
 
@@ -71,5 +71,6 @@ def get_category_id(category: str, connection: object) -> int:
         :param connection: connection string to bd.
     '''
     res = select([Category.id]).where(Category.title == category)
-    out = connection.execute(res)
-    return out.fetchone()[0]
+    out = await connection.execute(res)
+    row = await out.first()
+    return row['id']
