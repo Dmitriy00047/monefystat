@@ -1,4 +1,3 @@
-import json
 import unittest
 from monefystat_api.app import app
 
@@ -44,8 +43,11 @@ class CDefinedPeriodTest(unittest.TestCase):
 
 class DCustomPeriodTest(unittest.TestCase):
     def test_get_data_for_custom_period_returns_200(self):
-        params = {'category': 'еда', 'start_date': '2018-03-25',
-                  'end_date': '2018-04-25'}
+        params = {
+            'category': 'еда',
+            'start_date': '25-03-2018',
+            'end_date': '25-04-2018'
+        }
         request, response = app.test_client.get(
             '/data_custom_period', params=params)
         assert response.status == 200
@@ -55,65 +57,15 @@ class DCustomPeriodTest(unittest.TestCase):
         assert response.status == 405
 
     def test_get_data_for_custom_period_query_in_get(self):
-        params = {'category': 'еда', 'start_date': '2018-03-25',
-                  'end_date': '2018-04-25'}
-        request, response = app.test_client.get(
-            '/data_custom_period', params=params)
+        params = {
+            'category': 'еда',
+            'start_date': '25-03-2018',
+            'end_date': '25-04-2018'
+        }
+        request, response = app.test_client.get('/data_custom_period', params=params)
         assert request.args.get('category') == 'еда' and \
-            request.args.get('start_date') == '2018-03-25' and \
-            request.args.get('end_date') == '2018-04-25'
-
-
-class EUpsertLimitTest(unittest.TestCase):
-    def test_post_limit_valid(self):
-        body = {
-            'category_name': 'taxi',
-            'limit': '34',
-            'start_date': '01-01-2012',
-            'period': '34',
-            'is_repeated': 'false'
-        }
-        request, response = app.test_client.post('/limit', data=json.dumps(body))
-        assert response.status == 200
-
-    def test_put_limit_invalid(self):
-        body = {
-            'category_name': 'taxi',
-            'limit': '-34',
-            'start_date': '01-01-2012',
-            'period': '34',
-            'is_repeated': 'false'
-        }
-        request, response = app.test_client.put('/limit', data=json.dumps(body))
-        assert response.status == 400
-
-
-class FDeleteLimitTest(unittest.TestCase):
-    def test_delete_limit_exists(self):
-        data = {'category_name': 'taxi'}
-        request, response = app.test_client.delete('/limit', data=json.dumps(data))
-        assert response.status == 200
-
-    def test_delete_limit_not_exists(self):
-        data = {'category_name': 'car'}
-        request, response = app.test_client.delete('/limit', data=json.dumps(data))
-        assert response.status == 404
-
-
-class GGetLimitTest(unittest.TestCase):
-    def test_get_concrete_limit(self):
-        params = {'category_name': 'taxi'}
-        request, response = app.test_client.get('/limit', params=params)
-        assert response.status == 200
-
-    def test_get_all_limits(self):
-        request, response = app.test_client.get('/limit')
-        assert response.status == 200
-
-    def test_get_not_existig_limits(self):
-        params = {'category_name': 'tax'}
-        request, response = app.test_client.get('/limit', params=params)
-        assert response.status == 404
+            request.args.get('start_date') == '25-03-2018' and \
+            request.args.get('end_date') == '25-04-2018'
 
 
 class JDropTest(unittest.TestCase):
