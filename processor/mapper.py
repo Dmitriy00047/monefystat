@@ -42,6 +42,7 @@ def insert_transactions(transactions) -> None:
         )
         connection.execute(on_update_transaction)
     connection.close()
+    engine.dispose()
 
 
 def insert_category_2_bd(category: str, connection: object) -> int:
