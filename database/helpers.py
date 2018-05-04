@@ -6,11 +6,13 @@ from datetime import datetime, timedelta
 
 import psycopg2
 from aiopg.sa import create_engine
+
 from sqlalchemy import select, and_
 from sqlalchemy.schema import CreateTable, DropTable
 from sqlalchemy.dialects.postgresql import insert
 
 from database import models
+
 from database.models import Transaction, Category
 from config import db
 

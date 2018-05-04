@@ -14,6 +14,7 @@ def insert_transactions(transactions) -> None:
         :param engine: connected database engine.
     '''
     engine = create_engine('postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db))
+
     connection = engine.connect()
     for transaction in transactions:
         category = transaction[2].strip().lower()
