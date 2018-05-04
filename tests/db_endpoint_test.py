@@ -1,5 +1,5 @@
-import json
 import unittest
+import json
 from monefystat_api.app import app
 
 
