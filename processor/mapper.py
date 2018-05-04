@@ -49,8 +49,12 @@ async def insert_select_category(category: str, connection: object) -> int:
     :param category: the name of the category.
     :param connection: connection object.
     '''
-    insert_category = insert(Category).values(title=category)
-    do_nothing_category = insert_category.on_conflict_do_nothing(index_elements=['title'])
+    insert_category = insert(Category).values(
+        title=category
+    )
+    do_nothing_category = insert_category.on_conflict_do_nothing(
+        index_elements=['title']
+    )
     res = await connection.execute(do_nothing_category)
     row = await res.first()
     if not row:

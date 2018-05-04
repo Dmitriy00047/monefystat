@@ -57,9 +57,7 @@ class DCustomPeriodTest(unittest.TestCase):
     def test_get_data_for_custom_period_query_in_get(self):
         params = {'category': 'еда', 'start_date': '2018-03-25',
                   'end_date': '2018-04-25'}
-        request, response = app.test_client.get(
-            '/data_custom_period', params=params)
-
+        request, response = app.test_client.get('/data_custom_period', params=params)
         assert request.args.get('category') == 'еда' and \
             request.args.get('start_date') == '2018-03-25' and \
             request.args.get('end_date') == '2018-04-25'
