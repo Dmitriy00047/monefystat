@@ -362,7 +362,6 @@
         },
         "yarl": {
             "hashes": [
-<<<<<<< HEAD
                 "sha256:0d3ceda7a71d0476496a3a198081e09f2b8716793702e76e78241ca87165b751",
                 "sha256:1640294c0315fa17515b0d95f7afd76493b7cae5235bf2b395787cef11b0745d",
                 "sha256:1fc3e17ab13e46cae1a6067ad4c210d6efa378267d312ed6a47803d0e5ca0d97",
@@ -374,35 +373,15 @@
                 "sha256:d7c327e826d8ef05c255dec137404302f147da436182e9cb97517ccf60ecfb2e"
             ],
             "version": "==1.2.3"
-=======
-                "sha256:166efa59cfd05d3f5e534fffc7c0d90e2521d88e130d92b182c7abe79046ac92",
-                "sha256:210d8f1cb59a99dd2e30b8643d60ac18ec7e4db70c3f4f610e979fb742166759",
-                "sha256:599a1f7f1e36d6e6484c36f4dedbc6edf26538ccf3205584df04511082bf4535",
-                "sha256:722a0bf67d03d5c30b9bc7193cd006b058a580d714149e4aa19fc8e532f7afe1",
-                "sha256:9ba3816f69e47b806e2afdeb43fb42c6c2760d233b3f2ed56bb4e7dcf4d51115",
-                "sha256:a3bd7788294d7e1ad6bb34afb18ee4dba9f94536e4ca58f8b0fe4d6625e51ffb",
-                "sha256:eb7d87afc1135dff58a1898d94fd55d0d5a1859be0df17dc3549ef9645eb5462",
-                "sha256:fbd063a24c8a180246784f012d77cb7cb54124abab570f2c8dc1a38f7f0bd408",
-                "sha256:ff225c34b2da57b1f25e5b2d547c11813b78b01b0aa9da77d59cdd20bc487234"
-            ],
-            "version": "==1.2.2"
->>>>>>> 24c507b3bc45c2365cddddc16319324ba88f7504
         }
     },
     "develop": {
         "attrs": {
             "hashes": [
-<<<<<<< HEAD
                 "sha256:4b90b09eeeb9b88c35bc642cbac057e45a5fd85367b985bd2809c62b7b939265",
                 "sha256:e0d0eb91441a3b53dab4d9b743eafc1ac44476296a2053b6ca3af0b139faf87b"
             ],
             "version": "==18.1.0"
-=======
-                "sha256:1c7960ccfd6a005cd9f7ba884e6316b5e430a3f1a6c37c5f87d8b43f83b54ec9",
-                "sha256:a17a9573a6f475c99b551c0e0a812707ddda1ec9653bed04c13841404ed6f450"
-            ],
-            "version": "==17.4.0"
->>>>>>> 24c507b3bc45c2365cddddc16319324ba88f7504
         },
         "flake8": {
             "hashes": [
