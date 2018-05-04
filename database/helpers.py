@@ -163,8 +163,8 @@ def _date_validator(period=None, start_date=None, end_date=None) -> tuple:
         start_date = str(datetime.date(datetime.now()) - timedelta(int(period)))
     else:
         try:
-            s_date = datetime.strptime(start_date, '%Y-%m-%d')
-            e_date = datetime.strptime(end_date, '%Y-%m-%d')
+            s_date = datetime.strptime(start_date, '%d-%m-%Y')
+            e_date = datetime.strptime(end_date, '%d-%m-%Y')
             if s_date > e_date:
                 start_date, end_date = end_date, start_date
         except ValueError:
@@ -209,7 +209,7 @@ async def upsert_limit(category_name, **kwargs) -> None:
     Warning: **kwargs must accept only the specified parameters.
 
     :param str category_name: name of selecting category.
-    :param float limit: limit of categody.
+    :param float limit: limit of category.
     :param datetime start_date: start day of limit.
     :param int period: number of days for limit.
     :param bool is_repeated: checking limit should be repeated for the same period.
