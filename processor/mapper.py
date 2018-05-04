@@ -5,13 +5,12 @@ from database.models import Transaction, Category
 from config import db
 
 
-def insert_transactions(transactions) -> None:
+async def insert_transactions(transactions: list) -> None:
     '''
-        Inserts prepared data to database.
-        All data must correspond with Transaction model.
+    Inserts prepared data to database.
+    All data must correspond with Transaction model.
 
-        :param transactions: list of lists of converted data from csv file.
-        :param engine: connected database engine.
+    :param transactions: list of lists of converted data from csv file.
     '''
     engine = create_engine('postgresql://{user}:{password}@{host}:{port}/{dbname}'.format(**db))
 
@@ -47,8 +46,8 @@ def insert_transactions(transactions) -> None:
 
 def insert_category_2_bd(category: str, connection: object) -> int:
     '''
-        Check that category exists in the db table.
-        If not - insert category to bd.
+    Check that category exists in the db table.
+    If not - insert category to bd.
 
         :param category: the name of the category.
         :param connection: connection string to bd.
@@ -68,7 +67,7 @@ def insert_category_2_bd(category: str, connection: object) -> int:
 
 def get_category_id(category: str, connection: object) -> int:
     '''
-        Get id from db table by the title.
+    Get id from db table by the title.
 
         :param category: the name of the category.
         :param connection: connection string to bd.
