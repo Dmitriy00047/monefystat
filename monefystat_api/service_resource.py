@@ -45,16 +45,14 @@ async def data_endpoint(request):
 
 
 def _convert_limit_args(args):
-    additional_fields = ['category_name', 'limit',
-                         'start_date', 'period', 'is_repeated']
+    additional_fields = ['category_name', 'limit', 'start_date', 'period', 'is_repeated']
     if set(args.keys()) == set(additional_fields):
         category_name = args['category_name']
         del args['category_name']
         # tring to reinterpet in nessessary types
         try:
             args['limit'] = int(args['limit'])
-            args['start_date'] = datetime.datetime.strptime(
-                args['start_date'], '%d-%m-%Y').date()
+            args['start_date'] = datetime.datetime.strptime(args['start_date'], '%d-%m-%Y').date()
             args['period'] = int(args['period'])
             args['is_repeated'] = args['is_repeated'].lower()
 
