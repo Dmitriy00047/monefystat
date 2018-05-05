@@ -18,3 +18,11 @@
 * MON-37 - Map file and put it into database
 * MON-38 - Create endpoints for create/drop database
 * MON-46 -  Create model for categories
+* MON-47 - Create GET method in scope of endpoint creation	
+* MON-48 - Create PUT method in scope of endpoint creation	
+* MON-49 - Create POST method in scope of endpoint creation	
+* MON-50 - Create DELETE method in scope of endpoint creation	
+* MON-51 - Create UPDATE query method in scope of endpoint creation	
+* MON-53 - Create INSERT query method in scope of endpoint creation	
+* MON-54 - Create DELETE query method in scope of endpoint creation	
+* MON-56 - Create SELECT query method in scope of endpoint creation
