@@ -25,7 +25,7 @@ async def webhook_reciver(request):
     obj.get_newest_monefy_data()
     data = validator_data.validate_data(obj.download_path)
     if data:
-        mapper.insert_transactions(data)
+        await mapper.insert_transactions(data)
     return json({'message': 'updated'}, status=200)
 
 
