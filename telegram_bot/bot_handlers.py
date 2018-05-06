@@ -5,9 +5,10 @@ from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from telegram_bot.telegram_calendar import TelegramCalendar
 from telegram_bot.limiter_helper import LimiterHelper
+from config import telegram
 
 
-bot = telebot.TeleBot('590354394:AAFx4mXzyugoXvDfkyNNa65loxQNJi7UYlI', threaded=False)
+bot = telebot.TeleBot(telegram['token'], threaded=False)
 lhelper = LimiterHelper()
 tcalendar = TelegramCalendar()
 
@@ -381,7 +382,3 @@ def set_limit_summary_handler(message):
     else:
         bot.send_message(message.chat.id, '🔴 Пожалуйста выберите один из пунктов меню')
         bot.register_next_step_handler(message, set_limit_summary_handler)
-
-
-if __name__ == '__main__':
-    bot.polling(none_stop=True)
