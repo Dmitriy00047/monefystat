@@ -140,6 +140,33 @@ def set_limit(message: object) -> None:
     bot.register_next_step_handler(message, set_category_handler)
 
 
+def get_category_markup() -> object:
+    '''
+    Function returns markup with all existing categories and '🆕 Ввести категорию' and '❌ Отмена' buttons.
+
+    :rtype: ReplyKeyboardMarkup.
+    '''
+    existing_categories = lhelper.get_categories()
+    keyboard = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    for entry in existing_categories:
+        keyboard.row(entry)
+    keyboard.row('❌ Отмена')
+    return keyboard
+
+
+# Handlers for /clear_limit flow
+@bot.message_handler(commands=['clear_limit'])
+def clear_limit(message: object) -> None:
+    '''
+    Handler for "/clear_limit" command.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    bot.send_message(message.chat.id, '⚪️ Выберите категорию', reply_markup=get_category_markup())
+    bot.register_next_step_handler(message, clear_category_handler)
+
+
 def set_category_handler(message: object) -> None:
     '''
     Handler for choosing `category_name`.
@@ -165,6 +192,29 @@ def set_category_handler(message: object) -> None:
     else:
         bot.send_message(message.chat.id, '🔴 Пожалуйста выберите один из пунктов меню')
         bot.register_next_step_handler(message, set_category_handler)
+
+
+def clear_category_handler(message: object) -> None:
+    '''
+    Handler for choosing `category_name`.
+    This handler responds to clicks from `set_category_markup()` and determines the further
+    flow of the setting of limit.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    existing_categories = lhelper.get_categories()
+    if message.text == '❌ Отмена':
+        cancel(message)
+    elif message.text in existing_categories:
+        lhelper.category_name = message.text
+        bot.send_message(message.chat.id,
+                         '🔵 Вы выбрали категорию : ' + message.text,
+                         reply_markup=set_limit_summary_markup())
+        bot.register_next_step_handler(message, clear_limit_summary_handler)
+    else:
+        bot.send_message(message.chat.id, '🔴 Пожалуйста выберите один из пунктов меню')
+        bot.register_next_step_handler(message, clear_category_handler)
 
 
 def category_entered_value_handler(message: object) -> None:
@@ -382,3 +432,22 @@ def set_limit_summary_handler(message):
     else:
         bot.send_message(message.chat.id, '🔴 Пожалуйста выберите один из пунктов меню')
         bot.register_next_step_handler(message, set_limit_summary_handler)
+
+
+def clear_limit_summary_handler(message):
+    '''
+    Handler for `set_limit_summary`.
+    This handler responds to clicks from markup and any text input.
+    Determines the further flow of the setting of limit.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    if message.text == '❌ Отмена':
+        cancel(message)
+    elif message.text == '✅ Подтвердить':
+        bot.send_message(message.chat.id, '🔵 Лимит удалён', reply_markup=ReplyKeyboardRemove())
+        lhelper.clear_limit()
+    else:
+        bot.send_message(message.chat.id, '🔴 Пожалуйста выберите один из пунктов меню')
+        bot.register_next_step_handler(message, clear_limit_summary_handler)
