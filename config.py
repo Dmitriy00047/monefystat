@@ -10,8 +10,8 @@ web = {
 }
 
 db = {
-    'user': env.get('DB_USER', 'postgres'),
-    'password': env.get('DB_PASSWORD', ''),
+    'user': env.get('DB_USER', 'user'),
+    'password': env.get('DB_PASSWORD', 'password'),
     'host': env.get('DB_HOST', 'localhost'),
     'port': int(env.get('DB_PORT', 5432)),
     'dbname': env.get('DB_NAME', 'monefystat')
@@ -19,4 +19,8 @@ db = {
 
 dropbox = {
     'token': env.get('DROPBOX_TOKEN')
+}
+
+telegram = {
+    'token': env.get('TELEGRAM_BOT_TOKEN')
 }
