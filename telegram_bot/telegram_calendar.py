@@ -2,6 +2,8 @@ import calendar
 from datetime import datetime
 from telebot import types
 
+from telegram_bot import button_titles
+
 
 class TelegramCalendar(object):
 
@@ -20,24 +22,11 @@ class TelegramCalendar(object):
         :param int month: month for markup creation.
         :return object: returns ReplyMarkupKeyboard object.
         '''
-        month_name = ['Январь',
-                      'Февраль',
-                      'Март',
-                      'Апрель',
-                      'Май',
-                      'Июнь',
-                      'Июль',
-                      'Август',
-                      'Сентябрь',
-                      'Октябрь',
-                      'Ноябрь',
-                      'Декабрь']
         markup = types.ReplyKeyboardMarkup()
         # First row - Month and Year
-        row = []
-        markup.row(month_name[month - 1] + ' ' + str(year))
+        markup.row(button_titles.PREVIOUS, calendar.month_name[month] + ' ' + str(year), button_titles.NEXT)
         # Second row - Week Days
-        week_days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+        week_days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
         row = []
         for day in week_days:
             row.append(day)
@@ -53,11 +42,7 @@ class TelegramCalendar(object):
                     row.append(str(day))
             markup.row(*row)
         # Last row - Buttons
-        row = []
-        row.append('⬅️')
-        row.append('➡️')
-        markup.row(*row)
-        markup.row('❌ Отмена')
+        markup.row(button_titles.CANCEL)
         return markup
 
     def date_validation(self, value: type) -> bool:
