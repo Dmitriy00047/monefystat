@@ -284,7 +284,7 @@ def set_period_handler(message: object) -> None:
             bot.register_next_step_handler(message, is_repeated_handler)
         elif message.text == button_titles.ANOTHER_VALUE:
             bot.send_message(message.chat.id,
-                             '⚪️ Enter the number of days that you want to set a limit',
+                             '⚪️ Enter the number of days that you want to get data for the category',
                              reply_markup=single_cancel_button_markup())
             bot.register_next_step_handler(message, another_value_selected_handler)
         elif message.text == button_titles.SELECT_DATE:
