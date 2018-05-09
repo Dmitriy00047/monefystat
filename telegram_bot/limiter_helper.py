@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 
-from database.helpers import get_limit, upsert_limit, delete_limit
+from database.helpers import get_limit, upsert_limit, delete_limit, get_data_period
 
 
 class LimiterHelper(object):
@@ -119,6 +119,12 @@ class LimiterHelper(object):
                                              period=self.__period,
                                              start_date=self.__start_date,
                                              is_repeated=self.__is_repeated))
+
+    def get_period_for_category(self) -> None:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(get_data_period(self.__category_name,
+                                             period=self.__period,
+                                             start_date=self.__start_date))
 
     def clear_limit(self) -> None:
         loop = asyncio.get_event_loop()
