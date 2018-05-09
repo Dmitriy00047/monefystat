@@ -8,7 +8,6 @@ from telegram_bot.telegram_calendar import TelegramCalendar
 from telegram_bot.limiter_helper import LimiterHelper
 from config import telegram
 
-
 bot = telebot.TeleBot(telegram['token'], threaded=False)
 lhelper = LimiterHelper()
 tcalendar = TelegramCalendar()
@@ -285,7 +284,7 @@ def set_period_handler(message: object) -> None:
             bot.register_next_step_handler(message, is_repeated_handler)
         elif message.text == button_titles.ANOTHER_VALUE:
             bot.send_message(message.chat.id,
-                             '⚪️ Enter the number of days that you want to set a limit',
+                             '⚪️ Enter the number of days that you want to get data for the category',
                              reply_markup=single_cancel_button_markup())
             bot.register_next_step_handler(message, another_value_selected_handler)
         elif message.text == button_titles.SELECT_DATE:
@@ -451,3 +450,166 @@ def clear_limit_summary_handler(message):
     else:
         bot.send_message(message.chat.id, '🔴 Please select one of the menu items')
         bot.register_next_step_handler(message, clear_limit_summary_handler)
+
+
+# Handlers for /get_data_period flow
+@bot.message_handler(commands=['get_data_period'])
+def get_data_period(message: object) -> None:
+    '''
+    Handler for "/get_data_period" command.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    bot.send_message(message.chat.id, '⚪️ Choose category', reply_markup=set_markup_for_existing_categories())
+    bot.register_next_step_handler(message, set_handler_for_existing_categories)
+
+
+def set_markup_for_existing_categories() -> object:
+    '''
+    Function returns markup with all existing categories and '❌ Cancel' buttons.
+
+    :rtype: ReplyKeyboardMarkup.
+    '''
+    existing_categories = lhelper.get_categories()
+    markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    for entry in existing_categories:
+        markup.row(entry)
+    markup.row(button_titles.CANCEL)
+    return markup
+
+
+def set_handler_for_existing_categories(message: object) -> None:
+    '''
+    Handler for choosing `category_name`.
+    This handler responds to clicks from `set_markup_for_existing_categories()` and determines the further
+    flow of the getting data period.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    existing_categories = lhelper.get_categories()
+    if message.text == button_titles.CANCEL:
+        cancel(message)
+    elif message.text in existing_categories:
+        lhelper.category_name = message.text
+        bot.send_message(message.chat.id,
+                         '🔵 You selected category: ' + message.text + '\n' +
+                         '⚪️ Please, choose period or start date for category',
+                         reply_markup=set_period_markup())
+        bot.register_next_step_handler(message, set_period_handler_for_get_data)
+    else:
+        bot.send_message(message.chat.id, '🔴 Please select one of the menu items')
+        bot.register_next_step_handler(message, set_handler_for_existing_categories)
+
+
+def set_period_handler_for_get_data(message: object) -> None:
+    '''
+    Handler chosing `period`.
+    This handler responds to clicks from `set_period_markup()` and manual inputting of any text.
+    Determines the further flow of the setting of limit.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    if message.text == button_titles.CANCEL:
+        cancel(message)
+    else:
+        if message.text == button_titles.DAY:
+            lhelper.period = 1
+            bot.register_next_step_handler(message, set_get_data_summary_handler)
+        elif message.text == button_titles.WEEK:
+            lhelper.period = 7
+            bot.register_next_step_handler(message, set_get_data_summary_handler)
+        elif message.text == button_titles.MONTH:
+            lhelper.period = 30
+            bot.register_next_step_handler(message, set_get_data_summary_handler)
+        elif message.text == button_titles.YEAR:
+            lhelper.period = 365
+            bot.register_next_step_handler(message, set_get_data_summary_handler)
+        elif message.text == button_titles.ANOTHER_VALUE:
+            bot.send_message(message.chat.id,
+                             '⚪️ Enter the number of days that you want to set a limit',
+                             reply_markup=single_cancel_button_markup())
+            bot.register_next_step_handler(message, another_period_handler)
+        elif message.text == button_titles.SELECT_DATE:
+            calendar_markup = tcalendar.calendar_today(message)
+            bot.send_message(message.chat.id, '⚪️ Please, choose a date', reply_markup=calendar_markup)
+            bot.register_next_step_handler(message, calendar_handler_for_get_data)
+        else:
+            bot.send_message(message.chat.id, '🔴 Please select one of the menu items')
+            bot.register_next_step_handler(message, set_period_handler_for_get_data)
+
+
+def another_period_handler(message: object) -> None:
+    '''
+    Handler for manual input of `period`.
+    This handler responds to clicks from `single_cancel_button_markup()` and validates manual inputting of period.
+    Determines the further flow of the setting of limit.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    if message.text == button_titles.CANCEL:
+        cancel(message)
+    else:
+        if lhelper.validate_period(message.text):
+            lhelper.period = int(message.text)
+            bot.register_next_step_handler(message, set_get_data_summary_handler)
+        else:
+            bot.send_message(message.chat.id,
+                             '🔴 Period must be an integer value greater than zero',
+                             reply_markup=single_cancel_button_markup())
+            bot.register_next_step_handler(message, another_period_handler)
+
+
+def calendar_handler_for_get_data(message: object) -> None:
+    '''
+    Handler for calendar.
+    This handler responds and validates to clicks from `calendar_markup`.
+    Determines the further flow of the getting data for category.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    if message.text == button_titles.CANCEL:
+        cancel(message)
+    elif message.text == button_titles.PREVIOUS:
+        calendar_markup = tcalendar.calendar_previous_month(message)
+        bot.send_message(message.chat.id, '⚪️ Please, choose a date', reply_markup=calendar_markup)
+        bot.register_next_step_handler(message, calendar_handler_for_get_data)
+    elif message.text == button_titles.NEXT:
+        calendar_markup = tcalendar.calendar_next_month(message)
+        bot.send_message(message.chat.id, '⚪️ Please, choose a date', reply_markup=calendar_markup)
+        bot.register_next_step_handler(message, calendar_handler_for_get_data)
+    elif tcalendar.date_validation(message.text):
+        saved_date = tcalendar.current_shown_dates.get(message.chat.id)
+        day = int(message.text)
+        date = datetime(int(saved_date[0]), int(saved_date[1]), int(day), 0, 0, 0)
+        if (date - lhelper.start_date).days >= 0:
+            lhelper.period = int((date - lhelper.start_date).days) + 1
+            bot.register_next_step_handler(message, set_get_data_summary_handler)
+        else:
+            bot.send_message(message.chat.id, '🔴 Date must be greater than current')
+            bot.register_next_step_handler(message, calendar_handler_for_get_data)
+    else:
+        bot.register_next_step_handler(message, calendar_handler_for_get_data)
+
+
+def set_get_data_summary_handler(message):
+    '''
+    Handler for `set_get_data_summary_handler.
+    This handler responds to clicks from markup and any text input.
+    Determines the further flow of the gettinf data for category.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    if message.text == button_titles.CANCEL:
+        cancel(message)
+    elif message.text == button_titles.ACCEPT:
+        bot.send_message(message.chat.id, '🔵 Date selected', reply_markup=ReplyKeyboardRemove())
+        lhelper.get_period_for_category()
+    else:
+        bot.send_message(message.chat.id, '🔴 Please select one of the menu items')
+        bot.register_next_step_handler(message, set_get_data_summary_handler)
