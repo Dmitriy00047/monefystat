@@ -127,8 +127,9 @@ class LimiterHelper(object):
     def get_period_for_category(self) -> None:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(get_data_period(self.__category_name,
-                                             period=self.__period,
-                                             start_date=self.__start_date))
+                                                period=self.__period,
+                                                start_date=self.__start_date)
+                                )
 
     def clear_limit(self) -> None:
         loop = asyncio.get_event_loop()
