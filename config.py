@@ -20,3 +20,7 @@ db = {
 dropbox = {
     'token': env.get('DROPBOX_TOKEN')
 }
+
+telegram = {
+    'token': env.get('TELEGRAM_BOT_TOKEN')
+}
