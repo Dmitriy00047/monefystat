@@ -26,3 +26,4 @@
 * MON-53 - Create INSERT query method in scope of endpoint creation	
 * MON-54 - Create DELETE query method in scope of endpoint creation	
 * MON-56 - Create SELECT query method in scope of endpoint creation
+* MON-92 - Create /start and /help handlers for telegram bot

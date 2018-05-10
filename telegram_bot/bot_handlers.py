@@ -9,9 +9,60 @@ from telegram_bot.limiter_helper import LimiterHelper
 from config import telegram
 
 
+commands = {  # command description used in the 'help' command
+            '/get_all_data': 'get all your transactions',
+            '/get_data_period': 'get your transactions for period',
+            '/set_limit': 'set limit for category',
+            '/get_limit': 'get limit for category',
+            '/clear_limit': 'clear limit for category'}
+
+
 bot = telebot.TeleBot(telegram['token'], threaded=False)
 lhelper = LimiterHelper()
 tcalendar = TelegramCalendar()
+
+
+def start_user_markup() -> object:
+    '''
+    Function returns markup with existing commands.
+
+    :rtype: ReplyKeyboardMarkup.
+    '''
+    keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
+    keyboard.row('/help')
+    keyboard.row('/get_all_data', '/get_data_period')
+    keyboard.row('/set_limit', '/get_limit', '/clear_limit')
+    return keyboard
+
+
+# Handle '/start'
+@bot.message_handler(commands=['start'])
+def send_welcome(message: object) -> None:
+    '''
+    Hendler for /start command.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    message_text = '🔵 Hi there, I am MonefystatBot. ' \
+                   'I am here to help you to interact with Monefystat application. ' \
+                   'Tap /help to learn more.'
+    bot.send_message(message.chat.id, message_text, reply_markup=start_user_markup())
+
+
+# Handle '/help'
+@bot.message_handler(commands=['help'])
+def view_helper(message: object) -> None:
+    '''
+    Hendler for /help command.
+
+    :param object message: message object.
+    :rtype: None.
+    '''
+    help_text = '🔵 You can interact with app by sending these commands:\n'
+    for key in commands:
+        help_text += key + ' - ' + commands[key] + '\n'
+    bot.send_message(message.chat.id, help_text)
 
 
 # Markups for /set_limit flow
