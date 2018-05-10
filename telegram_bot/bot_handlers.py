@@ -81,6 +81,18 @@ def accept_markup(accept_change_button=False) -> object:
     return markup
 
 
+def get_limit_markup(limit: list) -> object:
+    '''
+    Function returns markup with all existing limits and '❌ Cancel' buttons.
+    :rtype: ReplyKeyboardMarkup.
+    '''
+    markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    for entry in limit:
+        markup.row(entry['title'])
+    markup.row(button_titles.CANCEL)
+    return markup
+
+
 # Helpers funcs for /set_limit flow
 def cancel(message: object) -> None:
     '''
@@ -411,8 +423,12 @@ def clear_limit(message: object) -> None:
     :rtype: None.
     '''
     lhelper.handler = 'clear_limit'
-    bot.send_message(message.chat.id, '⚪️ Choose category', reply_markup=set_category_markup())
-    bot.register_next_step_handler(message, clear_category_handler)
+    limit = lhelper.get_limit_record()
+    if not limit:
+        bot.send_message(message.chat.id, '🔴 There is no limits yet. Use /set_limit to create limit.')
+    else:
+        bot.send_message(message.chat.id, '⚪️ Please, choose a category', reply_markup=get_limit_markup(limit))
+        bot.register_next_step_handler(message, clear_category_handler)
 
 
 def clear_category_handler(message: object) -> None:
@@ -559,3 +575,33 @@ def set_get_data_summary_handler(message):
     else:
         bot.send_message(message.chat.id, '🔴 Please select one of the menu items')
         bot.register_next_step_handler(message, set_get_data_summary_handler)
+
+
+@bot.message_handler(commands=['get_limit'])
+def get_limit(message: object) -> None:
+    limit = lhelper.get_limit_record()
+    if not limit:
+        bot.send_message(message.chat.id, '🔴 There is no limits yet. Use /set_limit to create limit.')
+    else:
+        bot.send_message(message.chat.id, '⚪️ Please, choose a category', reply_markup=get_limit_markup(limit))
+        bot.register_next_step_handler(message, get_limit_handler)
+
+
+def get_limit_handler(message: object) -> None:
+    limit = lhelper.get_limit_record()
+    if message.text == button_titles.CANCEL:
+        cancel(message)
+    else:
+        index = 0
+        for item in limit:
+            if message.text in item:
+                index = item[message.text]
+        msg = (
+            '🔵Limit for category "{title}"\n' +
+            'Limit value: "{limit}"\n' +
+            'Limitation period: "{period}"\n' +
+            'Budget mode: "{is_repeated}"\n' +
+            'Start from: "{start_date}"'
+        ).format(**limit[index])
+
+        bot.send_message(message.chat.id, msg, reply_markup=ReplyKeyboardRemove())

@@ -173,3 +173,12 @@ class LimiterHelper(object):
     def clear_limit(self) -> None:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(delete_limit(self.__category_name))
+
+    def get_limit_record(self) -> list:
+        result = []
+        loop = asyncio.get_event_loop()
+        limits = loop.run_until_complete(get_limit())
+        for lim in limits:
+            if lim['limit']:
+                result.append(lim)
+        return result
