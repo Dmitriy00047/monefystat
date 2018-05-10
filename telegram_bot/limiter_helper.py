@@ -23,6 +23,7 @@ class LimiterHelper(object):
         self.__start_date = datetime.utcnow()
         self.__is_repeated = False
         self.__start_period = None
+        self.__end_period = datetime.utcnow()
 
     @property
     def category_name(self):
@@ -76,6 +77,17 @@ class LimiterHelper(object):
     def start_period(self, value):
         if isinstance(value, datetime):
             self.__start_period = value
+        else:
+            raise TypeError()
+
+    @property
+    def end_period(self):
+        return self.__end_period
+
+    @end_period.setter
+    def end_period(self, value):
+        if isinstance(value, datetime):
+            self.__end_period = value
         else:
             raise TypeError()
 

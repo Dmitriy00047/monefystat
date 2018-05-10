@@ -586,11 +586,11 @@ def calendar_handler_for_get_data(message: object) -> None:
         saved_date = tcalendar.current_shown_dates.get(message.chat.id)
         day = int(message.text)
         date = datetime(int(saved_date[0]), int(saved_date[1]), int(day), 0, 0, 0)
-        if (date - lhelper.start_period).days >= 0:
-            lhelper.period = int((date - lhelper.start_period).days) + 1
+        if (lhelper.end_period - date).days >= 0:
+            lhelper.start_period = date
             bot.register_next_step_handler(message, set_get_data_summary_handler)
         else:
-            bot.send_message(message.chat.id, '🔴 Date must be greater than current')
+            bot.send_message(message.chat.id, '🔴 Date must be less than current')
             bot.register_next_step_handler(message, calendar_handler_for_get_data)
     else:
         bot.register_next_step_handler(message, calendar_handler_for_get_data)
