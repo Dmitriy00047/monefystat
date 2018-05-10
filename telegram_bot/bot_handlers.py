@@ -493,4 +493,4 @@ def get_limit_handler(message: object) -> None:
             'Start from: "{start_date}"'
         ).format(**limit[index])
 
-        bot.send_message(message.chat.id, msg)
+        bot.send_message(message.chat.id, msg, reply_markup=ReplyKeyboardRemove())
