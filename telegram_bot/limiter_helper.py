@@ -24,6 +24,7 @@ class LimiterHelper(object):
         self.__is_repeated = False
         self.__start_period = None
         self.__end_period = datetime.utcnow()
+        self.handler = None
 
     @property
     def category_name(self):
@@ -148,12 +149,26 @@ class LimiterHelper(object):
                                              start_date=self.__start_date,
                                              is_repeated=self.__is_repeated))
 
-    def get_period_for_category(self) -> None:
+    def get_period_for_category(self) -> list:
+        result = []
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(get_data_period(self.__category_name,
-                                                period=self.__period,
-                                                start_date=self.__start_period)
-                                )
+        end_date = str(self.__end_period.strftime('%d-%m-%Y'))
+        start_date = str(self.__start_period.strftime('%d-%m-%Y'))
+        transactions = loop.run_until_complete(get_data_period(self.__category_name,
+                                                               period=self.__period,
+                                                               start_date=start_date,
+                                                               end_date=end_date
+                                                               ))
+        for transaction in transactions:
+            if transaction:
+                msg = 'date: {0}, account: {1}, amount: {2}, currency: {3}'.format(
+                    transaction.date,
+                    transaction.account,
+                    transaction.amount,
+                    transaction.currency
+                )
+                result.append(msg)
+        return result
 
     def clear_limit(self) -> None:
         loop = asyncio.get_event_loop()
