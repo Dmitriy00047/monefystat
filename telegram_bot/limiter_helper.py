@@ -1,7 +1,11 @@
 import asyncio
 from datetime import datetime
 
-from database.helpers import get_limit, upsert_limit, delete_limit
+from database.helpers import \
+    get_limit, \
+    upsert_limit, \
+    delete_limit, \
+    get_data_period
 
 
 class LimiterHelper(object):
@@ -18,6 +22,9 @@ class LimiterHelper(object):
         self.__period = None
         self.__start_date = datetime.utcnow()
         self.__is_repeated = False
+        self.__start_period = None
+        self.__end_period = datetime.utcnow()
+        self.handler = None
 
     @property
     def category_name(self):
@@ -60,6 +67,28 @@ class LimiterHelper(object):
     def start_date(self, value):
         if isinstance(value, datetime):
             self.__start_date = value
+        else:
+            raise TypeError()
+
+    @property
+    def start_period(self):
+        return self.__start_period
+
+    @start_period.setter
+    def start_period(self, value):
+        if isinstance(value, datetime):
+            self.__start_period = value
+        else:
+            raise TypeError()
+
+    @property
+    def end_period(self):
+        return self.__end_period
+
+    @end_period.setter
+    def end_period(self, value):
+        if isinstance(value, datetime):
+            self.__end_period = value
         else:
             raise TypeError()
 
@@ -120,6 +149,38 @@ class LimiterHelper(object):
                                              start_date=self.__start_date,
                                              is_repeated=self.__is_repeated))
 
+    def get_period_for_category(self) -> list:
+        result = []
+        start_date = None
+        loop = asyncio.get_event_loop()
+        end_date = str(self.__end_period.strftime('%d-%m-%Y'))
+        if self.__start_period:
+            start_date = str(self.__start_period.strftime('%d-%m-%Y'))
+        transactions = loop.run_until_complete(get_data_period(self.__category_name,
+                                                               period=self.__period,
+                                                               start_date=start_date,
+                                                               end_date=end_date
+                                                               ))
+        for transaction in transactions:
+            if transaction:
+                msg = 'date: {0}, account: {1}, amount: {2}, currency: {3}'.format(
+                    transaction['transaction_date'],
+                    transaction['account'],
+                    transaction['amount'],
+                    transaction['currency']
+                )
+                result.append(msg)
+        return result
+
     def clear_limit(self) -> None:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(delete_limit(self.__category_name))
+
+    def get_limit_record(self) -> list:
+        result = []
+        loop = asyncio.get_event_loop()
+        limits = loop.run_until_complete(get_limit())
+        for lim in limits:
+            if lim['limit']:
+                result.append(lim)
+        return result
