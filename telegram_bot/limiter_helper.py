@@ -22,6 +22,7 @@ class LimiterHelper(object):
         self.__period = None
         self.__start_date = datetime.utcnow()
         self.__is_repeated = False
+        self.__start_period = None
 
     @property
     def category_name(self):
@@ -64,6 +65,17 @@ class LimiterHelper(object):
     def start_date(self, value):
         if isinstance(value, datetime):
             self.__start_date = value
+        else:
+            raise TypeError()
+
+    @property
+    def start_period(self):
+        return self.__start_period
+
+    @start_period.setter
+    def start_period(self, value):
+        if isinstance(value, datetime):
+            self.__start_period = value
         else:
             raise TypeError()
 
@@ -128,7 +140,7 @@ class LimiterHelper(object):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(get_data_period(self.__category_name,
                                                 period=self.__period,
-                                                start_date=self.__start_date)
+                                                start_date=self.__start_period)
                                 )
 
     def clear_limit(self) -> None:
