@@ -485,9 +485,12 @@ def get_limit_handler(message: object) -> None:
         for item in limit:
             if message.text in item:
                 index = item[message.text]
-        msg = '''🔵Limit for category '{title}'
-Limit value: {limit}
-Limitation period: {period}
-Budget mode: {is_repeated}
-Start from: {start_date}\n'''.format(**limit[index])
+        msg = (
+            '🔵Limit for category "{title}"\n' +
+            'Limit value: "{limit}"\n' +
+            'Limitation period: "{period}"\n' +
+            'Budget mode: "{is_repeated}"\n' +
+            'Start from: "{start_date}"'
+        ).format(**limit[index])
+
         bot.send_message(message.chat.id, msg)
