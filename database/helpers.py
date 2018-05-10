@@ -152,6 +152,7 @@ def _category_name_decoder(category_name: str) -> str:
     '''
     category_name = list(map(lambda x: x.replace(' ', ''), category_name))
     category_name = list(map(lambda x: x.replace('\xa0', ''), category_name))
+    category_name = ''.join(category_name)
     return category_name.strip().lower()
 
 
