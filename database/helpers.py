@@ -150,10 +150,9 @@ def _category_name_decoder(category_name: str) -> str:
     Function for decoding category name from bytearray to string
     :param str category_name: bytearray with name of category
     '''
-    category_name = list(map(lambda x: x.replace(' ', ''), category_name[:7]))
-    category_name = list(map(lambda x: x.replace('\xa0', ''), category_name[:7]))
-    category_name = ''.join(category_name)
-    return category_name.lower()
+    category_name = list(map(lambda x: x.replace(' ', ''), category_name))
+    category_name = list(map(lambda x: x.replace('\xa0', ''), category_name))
+    return category_name.strip().lower()
 
 
 def _date_validator(period=None, start_date=None, end_date=None) -> tuple:

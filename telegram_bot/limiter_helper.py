@@ -162,10 +162,10 @@ class LimiterHelper(object):
         for transaction in transactions:
             if transaction:
                 msg = 'date: {0}, account: {1}, amount: {2}, currency: {3}'.format(
-                    transaction.date,
-                    transaction.account,
-                    transaction.amount,
-                    transaction.currency
+                    transaction['transaction_date'],
+                    transaction['account'],
+                    transaction['amount'],
+                    transaction['currency']
                 )
                 result.append(msg)
         return result
