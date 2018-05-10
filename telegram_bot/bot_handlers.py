@@ -81,28 +81,13 @@ def accept_markup(accept_change_button=False) -> object:
     return markup
 
 
-def get_category_markup() -> object:
-    '''
-    Function returns markup with all existing categories and '🆕 Add category' and '❌ Cancel' buttons.
-
-    :rtype: ReplyKeyboardMarkup.
-    '''
-    existing_categories = lhelper.get_categories()
-    markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    for entry in existing_categories:
-        markup.row(entry)
-    markup.row(button_titles.CANCEL)
-    return markup
-
-
 def get_limit_markup(limit: list) -> object:
     '''
     Function returns markup with all existing limits and '❌ Cancel' buttons.
     :rtype: ReplyKeyboardMarkup.
     '''
-    existing_limit = lhelper.get_limit_record()
     markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    for entry in existing_limit:
+    for entry in limit:
         markup.row(entry['title'])
     markup.row(button_titles.CANCEL)
     return markup
@@ -419,8 +404,12 @@ def clear_limit(message: object) -> None:
     :param object message: message object.
     :rtype: None.
     '''
-    bot.send_message(message.chat.id, '⚪️ Choose category', reply_markup=get_category_markup())
-    bot.register_next_step_handler(message, clear_category_handler)
+    limit = lhelper.get_limit_record()
+    if not limit:
+        bot.send_message(message.chat.id, '🔴 There is no limits yet. Use /set_limit to create limit.')
+    else:
+        bot.send_message(message.chat.id, '⚪️ Please, choose a category', reply_markup=get_limit_markup(limit))
+        bot.register_next_step_handler(message, clear_category_handler)
 
 
 def clear_category_handler(message: object) -> None:
