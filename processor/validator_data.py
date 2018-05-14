@@ -10,7 +10,7 @@ def validate_data(file_csv) -> list:
     '''
     This method validate Monefy_data.csv and typing data from Monefy_data.csv
     The file that is called by this function is stored in the following way:
-    /downloads/Monefy_data.csv'
+    '/downloads/Monefy_data.csv'
 
     :param .csv file_csv: path to file Monefy_data.csv
     '''
@@ -33,13 +33,32 @@ def convert_type(row: list) -> list:
     types = [date, str, str, float, str, float, str, str]
     row[0] = datetime.strptime(row[0], '%d/%m/%Y').date()
     for i in range(1, len(types)):
+        if i in (3, 5):
+            row[i] = replace_symbol_from_amount(row[i])
         row[i] = types[i](row[i])
     return row
 
 
+def replace_symbol_from_amount(column: str) -> str:
+    '''
+    This method replace special symbols to empty string.
+
+    :param column: the string that should be checked
+    '''
+    symbols = [
+        '"',
+        ',',
+        '\''
+    ]
+    for symbol in symbols:
+        if symbol in column:
+            column = column.replace(symbol, '')
+    return column
+
+
 def read_from_file(file_csv) -> list:
     '''
-    This method read data fron the csv file.
+    This method read data from the csv file.
 
     :param .csv file_csv: path to file Monefy_data.csv
     :raises: ValidationError
