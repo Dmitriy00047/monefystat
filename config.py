@@ -10,17 +10,17 @@ web = {
 }
 
 db = {
-    'user': env.get('DB_USER', 'user'),
-    'password': env.get('DB_PASSWORD', 'password'),
+    'user': env.get('DB_USER', 'postgres'),
+    'password': env.get('DB_PASSWORD', ''),
     'host': env.get('DB_HOST', 'localhost'),
     'port': int(env.get('DB_PORT', 5432)),
     'dbname': env.get('DB_NAME', 'monefystat')
 }
 
 dropbox = {
-    'token': env.get('DROPBOX_TOKEN', 'r_M1QDuIe2AAAAAAAAAALvqIS39RKjKZdjnZMO6S0mpZ8uwV3xlqkz-D20oAhrFO')
+    'token': env.get('DROPBOX_TOKEN')
 }
 
 telegram = {
-    'token': env.get('TELEGRAM_BOT_TOKEN', '551667714:AAH5lHg2Cic7kwW1VeAfPR14d4capoPxdHQ')
+    'token': env.get('TELEGRAM_BOT_TOKEN')
 }
