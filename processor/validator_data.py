@@ -11,7 +11,6 @@ def validate_data(file_csv) -> list:
     This method validate Monefy_data.csv and typing data from Monefy_data.csv
     The file that is called by this function is stored in the following way:
     '/downloads/Monefy_data.csv'
-
     :param .csv file_csv: path to file Monefy_data.csv
     '''
     result = []
@@ -25,7 +24,6 @@ def convert_type(row: list) -> list:
     '''
     This method convert each element of the csv row into
     specific type.
-
     :param row: the line of the csv file
     '''
     types = [date, str, str, float, str, float, str, str]
@@ -40,7 +38,6 @@ def convert_type(row: list) -> list:
 def replace_symbol_from_amount(column: str) -> str:
     '''
     This method replace special symbols to empty string.
-
     :param column: the string that should be checked
     '''
     column = column.replace('"', '')
@@ -53,7 +50,6 @@ def replace_symbol_from_amount(column: str) -> str:
 def read_from_file(file_csv) -> list:
     '''
     This method read data from the csv file.
-
     :param .csv file_csv: path to file Monefy_data.csv
     :raises: ValidationError
     '''
@@ -85,7 +81,6 @@ def convert_row(row: list) -> list:
     '''
     This method remove space and '\xa0' from the each element
     of the csv row.
-
     :param row: the line of the csv file
     '''
     row = list(map(lambda x: x.replace(' ', ''), row))
