@@ -9,17 +9,17 @@ from telegram_bot.limiter_helper import LimiterHelper
 from config import telegram
 
 
-commands = {  # command description used in the 'help' command
-            '/get_all_data': 'get all your transactions',
-            '/get_data_period': 'get your transactions for period',
-            '/set_limit': 'set limit for category',
-            '/get_limit': 'get limit for category',
-            '/clear_limit': 'clear limit for category'}
-
-
 bot = telebot.TeleBot(telegram['token'], threaded=False)
 lhelper = LimiterHelper()
 tcalendar = TelegramCalendar()
+
+
+commands = {  # command description used in the 'help' command
+            '/get_data_period': 'get your transactions for period',
+            '/set_limit': 'set limit for category',
+            '/get_limit': 'get limit for category',
+            '/clear_limit': 'clear limit for category',
+            '/help': 'get commands usage'}
 
 
 def start_user_markup() -> object:
@@ -29,9 +29,9 @@ def start_user_markup() -> object:
     :rtype: ReplyKeyboardMarkup.
     '''
     keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
-    keyboard.row('/help')
-    keyboard.row('/get_all_data', '/get_data_period')
-    keyboard.row('/set_limit', '/get_limit', '/clear_limit')
+    for i in commands.keys():
+        keyboard.row(i)
+
     return keyboard
 
 

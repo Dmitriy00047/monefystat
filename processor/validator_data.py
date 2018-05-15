@@ -1,4 +1,5 @@
-from datetime import date
+import csv
+from datetime import date, datetime
 
 
 class ValidationError(Exception):
@@ -12,37 +13,81 @@ def validate_data(file_csv) -> list:
     '/downloads/Monefy_data.csv'
 
     :param .csv file_csv: path to file Monefy_data.csv
+    '''
+    result = []
+    rows = read_from_file(file_csv)
+    for row in rows:
+        result.append(convert_type(row))
+    return result
 
-    :raises: ValidationError
+
+def convert_type(row: list) -> list:
+    '''
+    This method convert each element of the csv row into
+    specific type.
+
+    :param row: the line of the csv file
     '''
     types = [date, str, str, float, str, float, str, str]
+    row[0] = datetime.strptime(row[0], '%d/%m/%Y').date()
+    for i in range(1, len(types)):
+        if i in (3, 5):
+            row[i] = replace_symbol_from_amount(row[i])
+        row[i] = types[i](row[i])
+    return row
+
+
+def replace_symbol_from_amount(column: str) -> str:
+    '''
+    This method replace special symbols to empty string.
+
+    :param column: the string that should be checked
+    '''
+    column = column.replace('"', '')
+    parts = column.split(',')
+    if len(parts[-1]) < 3:
+        return str().join(parts[:-1]) + '.' + parts[-1]
+    return str().join(parts)
+
+
+def read_from_file(file_csv) -> list:
+    '''
+    This method read data from the csv file.
+
+    :param .csv file_csv: path to file Monefy_data.csv
+    :raises: ValidationError
+    '''
+    title_file = [
+        'date',
+        'account',
+        'category',
+        'amount',
+        'currency',
+        'converted amount',
+        'currency',
+        'description'
+    ]
     result = []
-    # validate data
-    with open(file_csv, 'r', encoding='utf8') as inf:
-        title_file = inf.readline().strip()
-        if title_file != 'date,account,category,amount,currency,converted amount,currency,description':
+    with open(file_csv, 'r', encoding='utf8') as csvfile:
+        header = csvfile.readline()
+        delimiter = ',' if header.count(',') else ';'
+
+        if header == delimiter.join(title_file):
             raise ValidationError('The content of the file is incorrect')
 
-        # convert all the fields in a row by type
-        for line in inf:
-            if line != '\n':
-                current_string = line.strip().split(',')
-                description = current_string[7] if len(current_string) == 8 else ''
-
-                # the following two lines to that the fields don't have spaces except the description field
-                current_string = list(map(lambda x: x.replace(' ', ''), current_string[:7]))
-                current_string = list(map(lambda x: x.replace('\xa0', ''), current_string[:7]))
-                current_string.append(description)
-
-                # the following two lines convert str with date into datetime.date
-                current_string[0] = current_string[0].split('/')[::-1]
-                if current_string[0] != ['']:
-                    current_string[0] = date(
-                        int(current_string[0][0]), int(current_string[0][1]), int(current_string[0][2]))
-
-                # convert the rest of the fields
-                for i in range(1, len(types)):
-                    if len(current_string) == 8:
-                        current_string[i] = types[i](current_string[i])
-                result.append(current_string)
+        rows = csv.reader(csvfile, delimiter=delimiter)
+        for row in rows:
+            result.append(convert_row(row))
     return result
+
+
+def convert_row(row: list) -> list:
+    '''
+    This method remove space and '\xa0' from the each element
+    of the csv row.
+
+    :param row: the line of the csv file
+    '''
+    row = list(map(lambda x: x.replace(' ', ''), row))
+    row = list(map(lambda x: x.replace('\xa0', ''), row))
+    return row
