@@ -14,12 +14,17 @@ commands = {  # command description used in the 'help' command
             '/get_data_period': 'get your transactions for period',
             '/set_limit': 'set limit for category',
             '/get_limit': 'get limit for category',
+<<<<<<< HEAD
             '/clear_limit': 'clear limit for category'}
 
 
 bot = telebot.TeleBot(telegram['token'], threaded=False)
 lhelper = LimiterHelper()
 tcalendar = TelegramCalendar()
+=======
+            '/clear_limit': 'clear limit for category',
+            '/help': 'get commands usage'}
+>>>>>>> fb117bd1e6d7dfadfc5f19c46166f582a930b85e
 
 
 def start_user_markup() -> object:
