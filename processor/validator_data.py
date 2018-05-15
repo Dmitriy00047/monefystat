@@ -14,7 +14,6 @@ def validate_data(file_csv) -> list:
 
     :param .csv file_csv: path to file Monefy_data.csv
     '''
-
     result = []
     rows = read_from_file(file_csv)
     for row in rows:
@@ -29,7 +28,6 @@ def convert_type(row: list) -> list:
 
     :param row: the line of the csv file
     '''
-
     types = [date, str, str, float, str, float, str, str]
     row[0] = datetime.strptime(row[0], '%d/%m/%Y').date()
     for i in range(1, len(types)):
@@ -45,15 +43,11 @@ def replace_symbol_from_amount(column: str) -> str:
 
     :param column: the string that should be checked
     '''
-    symbols = [
-        '"',
-        ',',
-        '\''
-    ]
-    for symbol in symbols:
-        if symbol in column:
-            column = column.replace(symbol, '')
-    return column
+    column = column.replace('"', '')
+    parts = column.split(',')
+    if len(parts[-1]) < 3:
+        return str().join(parts[:-1]) + '.' + parts[-1]
+    return str().join(parts)
 
 
 def read_from_file(file_csv) -> list:
@@ -63,7 +57,6 @@ def read_from_file(file_csv) -> list:
     :param .csv file_csv: path to file Monefy_data.csv
     :raises: ValidationError
     '''
-
     title_file = [
         'date',
         'account',
@@ -76,12 +69,15 @@ def read_from_file(file_csv) -> list:
     ]
     result = []
     with open(file_csv, 'r', encoding='utf8') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
-        if title_file not in rows:
+        header = csvfile.readline()
+        delimiter = ',' if header.count(',') else ';'
+
+        if header == delimiter.join(title_file):
             raise ValidationError('The content of the file is incorrect')
+
+        rows = csv.reader(csvfile, delimiter=delimiter)
         for row in rows:
-            if row and row != title_file:
-                result.append(convert_row(row))
+            result.append(convert_row(row))
     return result
 
 
@@ -92,7 +88,6 @@ def convert_row(row: list) -> list:
 
     :param row: the line of the csv file
     '''
-
     row = list(map(lambda x: x.replace(' ', ''), row))
     row = list(map(lambda x: x.replace('\xa0', ''), row))
     return row
