@@ -18,7 +18,7 @@ commands = {  # command description used in the 'help' command
             '/get_data_period': 'get your transactions for period',
             '/set_limit': 'set limit for category',
             '/get_limit': 'get limit for category',
-            '/clear_limit': 'clear limit for category', 
+            '/clear_limit': 'clear limit for category',
             '/help': 'get commands usage'}
 
 
