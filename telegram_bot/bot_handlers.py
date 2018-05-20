@@ -23,6 +23,12 @@ commands = {  # command description used in the 'help' command
 }
 
 
+def pass_limit_nofication():
+        cpl = lhelper.check_pass_limit()
+        for msg in cpl:
+            bot.send_message(lhelper.chat_id, msg)
+
+
 def start_user_markup() -> object:
     '''
     Function returns markup with existing commands.
@@ -43,6 +49,7 @@ def send_welcome(message: object) -> None:
     :param object message: message object.
     :rtype: None.
     '''
+    lhelper.chat_id = message.chat.id
     message_text = '🔵 Hi there, I am MonefystatBot. ' \
                    'I am here to help you to interact with Monefystat application. ' \
                    'Tap /help to learn more.'
@@ -608,6 +615,7 @@ def set_get_data_summary_handler(message):
 
 @bot.message_handler(commands=['get_limit'])
 def get_limit(message: object) -> None:
+    pass_limit_nofication()
     limit = lhelper.get_limit_record()
     if not limit:
         bot.send_message(message.chat.id, '🔴 There is no limits yet. Use /set_limit to create limit.')

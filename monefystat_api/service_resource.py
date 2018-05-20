@@ -6,6 +6,7 @@ from config import dropbox, path
 from transport.data_provider import DataProvider
 from database import helpers
 from processor import validator_data, mapper
+from telegram_bot.bot_handlers import pass_limit_nofication
 
 
 async def smoke_endpoint(request):
@@ -21,6 +22,7 @@ async def webhook_enable(request):
 
 # endpoint for downloading file from dropbox
 async def webhook_reciver(request):
+    pass_limit_nofication()
     obj = DataProvider(dropbox['token'], path)
     obj.get_newest_monefy_data()
     data = validator_data.validate_data(obj.download_path)
