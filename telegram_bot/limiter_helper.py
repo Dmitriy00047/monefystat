@@ -25,6 +25,7 @@ class LimiterHelper(object):
         self.__start_period = None
         self.__end_period = datetime.utcnow()
         self.handler = None
+        self.__chat_id = None
 
     @property
     def category_name(self):
@@ -65,10 +66,7 @@ class LimiterHelper(object):
 
     @start_date.setter
     def start_date(self, value):
-        if isinstance(value, datetime):
-            self.__start_date = value
-        else:
-            raise TypeError()
+        self.__start_date = value
 
     @property
     def start_period(self):
@@ -101,6 +99,17 @@ class LimiterHelper(object):
         if isinstance(value, bool):
             self.__is_repeated = value
         else:
+            raise TypeError()
+
+    @property
+    def chat_id(self):
+        return self.__chat_id
+
+    @chat_id.setter
+    def chat_id(self, value):
+        try:
+            self.__chat_id = int(value)
+        except Exception:
             raise TypeError()
 
     def validate_limit(self, value: type) -> bool:
@@ -183,4 +192,45 @@ class LimiterHelper(object):
         for lim in limits:
             if lim['limit']:
                 result.append(lim)
+        return result
+
+    def check_pass_limit(self) -> list:
+        result = []
+        limits = self.get_limit_record()
+        for limit in limits:
+            self._choose_limit(limit)
+            current_amount = self._get_current_amount_for_limit(limit['title'])
+            current_limit = limit['limit']
+            if (datetime.utcnow().date() - self.start_date).days < self.period:
+                if current_amount > 0.7 * current_limit and current_amount < current_limit:
+                    result.append('You are approaching the limit on category: {category_name}.\n'
+                                  'Your limit value: {limit_value}.\n'
+                                  'Your current amount: {current_amount}.'.format(category_name=limit['title'],
+                                                                                  limit_value=current_limit,
+                                                                                  current_amount=current_amount))
+                elif current_amount > current_limit:
+                    result.append('You exceeded the limit on category: {category_name}.\n'
+                                  'Your limit value: {limit_value}.\n'
+                                  'Your current amount: {current_amount}.'.format(category_name=limit['title'],
+                                                                                  limit_value=current_limit,
+                                                                                  current_amount=current_amount))
+        return result
+
+    def _choose_limit(self, limit: dict) -> None:
+        self.category_name = limit['title']
+        self.limit = limit['limit']
+        self.period = limit['period']
+        self.start_date = limit['start_date']
+
+    def _get_current_amount_for_limit(self, category_name) -> float:
+        result = 0.0
+        loop = asyncio.get_event_loop()
+        transactions = loop.run_until_complete(get_data_period(self.__category_name,
+                                                               period=None,
+                                                               start_date=self.start_date,
+                                                               end_date=datetime.utcnow()))
+        for transaction in transactions:
+            if transaction:
+                result += float(transaction['amount'])
+
         return result
