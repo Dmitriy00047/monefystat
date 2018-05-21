@@ -11,4 +11,5 @@ install:
   - pipenv install --dev
 
 script:
+  - chmod -x test_runner.sh
   - ./test_runner.sh
