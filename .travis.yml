@@ -11,4 +11,5 @@ install:
   - pipenv install --dev
 
 script:
-  - bash test_runner.sh
+  - python -m pytest tests/*
+  - flake8 --max-line-length=120
