@@ -634,4 +634,3 @@ def get_limit_handler(message: object) -> None:
         ).format(**limit[i])
 
         bot.send_message(message.chat.id, msg, reply_markup=ReplyKeyboardRemove())
-
