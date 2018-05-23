@@ -621,16 +621,16 @@ def get_limit_handler(message: object) -> None:
     if message.text == button_titles.CANCEL:
         cancel(message)
     else:
-        index = 0
+        i = 0
         for item in limit:
-            if message.text in item:
-                index = item[message.text]
+            if message.text in item['title']:
+                i = limit.index(item)
         msg = (
             '🔵Limit for category "{title}"\n' +
             'Limit value: "{limit}"\n' +
             'Limitation period: "{period}"\n' +
             'Budget mode: "{is_repeated}"\n' +
             'Start from: "{start_date}"'
-        ).format(**limit[index])
+        ).format(**limit[i])
 
         bot.send_message(message.chat.id, msg, reply_markup=ReplyKeyboardRemove())
