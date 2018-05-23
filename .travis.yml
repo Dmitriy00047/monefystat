@@ -11,5 +11,5 @@ install:
   - pipenv install --dev
 
 script:
-  - python -m pytest tests/*
+  - python -m pytest tests/*.py
   - flake8 --max-line-length=120
