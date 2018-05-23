@@ -11,7 +11,7 @@ def teardown_module():
     request, response = app.test_client.get('/drop_db')
 
 
-class EUpsertLimitTest(unittest.TestCase):
+class UpsertLimitTest(unittest.TestCase):
     @unittest.skip('Travis failed')
     def test_post_limit_valid(self):
         body = {
@@ -37,7 +37,7 @@ class EUpsertLimitTest(unittest.TestCase):
         assert response.status == 400
 
 
-class FDeleteLimitTest(unittest.TestCase):
+class DeleteLimitTest(unittest.TestCase):
     @unittest.skip('Travis failed')
     def test_delete_limit_exists(self):
         data = {'category_name': 'taxi'}
@@ -51,7 +51,7 @@ class FDeleteLimitTest(unittest.TestCase):
         assert response.status == 404
 
 
-class GGetLimitTest(unittest.TestCase):
+class GetLimitTest(unittest.TestCase):
     @unittest.skip('Travis failed')
     def test_get_concrete_limit(self):
         params = {'category_name': 'taxi'}
