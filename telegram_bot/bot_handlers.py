@@ -15,17 +15,17 @@ tcalendar = TelegramCalendar()
 
 
 commands = {  # command description used in the 'help' command
-            '/get_data_period': 'get your transactions for period',
-            '/set_limit': 'set limit for category',
-            '/get_limit': 'get limit for category',
-            '/clear_limit': 'clear limit for category',
-            '/help': 'get commands usage'}
+    '/get_data_period': 'get your transactions for period',
+    '/set_limit': 'set limit for category',
+    '/get_limit': 'get limit for category',
+    '/clear_limit': 'clear limit for category',
+    '/help': 'get commands usage'
+}
 
 
 def start_user_markup() -> object:
     '''
     Function returns markup with existing commands.
-
     :rtype: ReplyKeyboardMarkup.
     '''
     keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -40,7 +40,6 @@ def start_user_markup() -> object:
 def send_welcome(message: object) -> None:
     '''
     Hendler for /start command.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -55,7 +54,6 @@ def send_welcome(message: object) -> None:
 def view_helper(message: object) -> None:
     '''
     Hendler for /help command.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -69,7 +67,6 @@ def view_helper(message: object) -> None:
 def single_cancel_button_markup() -> object:
     '''
     Function returns markup with only one button '❌ Cancel'.
-
     :rtype: ReplyKeyboardMarkup.
     '''
     markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -80,7 +77,6 @@ def single_cancel_button_markup() -> object:
 def set_category_markup() -> object:
     '''
     Function returns markup with all existing categories and '🆕 Add category' and '❌ Cancel' buttons.
-
     :rtype: ReplyKeyboardMarkup.
     '''
     existing_categories = lhelper.get_categories()
@@ -96,7 +92,6 @@ def set_category_markup() -> object:
 def set_period_markup() -> object:
     '''
     Function returns markup with predefined periods and 'Another value', 'Select date', and '❌ Cancel' buttons.
-
     :rtype: ReplyKeyboardMarkup.
     '''
     markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -110,7 +105,6 @@ def set_period_markup() -> object:
 def yes_no_cancel_markup() -> object:
     '''
     Function returns markup with '✅ Yes', '❎ No', and '❌ Cancel' buttons.
-
     :rtype: ReplyKeyboardMarkup.
     '''
     markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -122,7 +116,6 @@ def yes_no_cancel_markup() -> object:
 def accept_markup(accept_change_button=False) -> object:
     '''
     Function returns markup with '✅ Accept' and '❌ Cancel' buttons.
-
     :rtype: ReplyKeyboardMarkup.
     '''
     markup = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -149,18 +142,15 @@ def get_limit_markup(limit: list) -> object:
 def cancel(message: object) -> None:
     '''
     Message response function on 'cancel_message'.
-
     :param object message: message object.
     :rtype: None.
     '''
-    clr_keyboard = ReplyKeyboardRemove(selective=False)
-    bot.send_message(message.chat.id, '🔵 Canceled', reply_markup=clr_keyboard)
+    bot.send_message(message.chat.id, '🔵 Canceled', reply_markup=start_user_markup())
 
 
 def set_limit_summary(message: object) -> None:
     '''
     Function sends message of summary of creating limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -184,7 +174,6 @@ def set_limit_summary(message: object) -> None:
 def is_repeated_question(message: object) -> None:
     '''
     Function sends question message of repeating limit (budget mode).
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -199,7 +188,6 @@ def is_repeated_question(message: object) -> None:
 def set_limit(message: object) -> None:
     '''
     Handler for "/set_limit" command.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -213,7 +201,6 @@ def set_category_handler(message: object) -> None:
     Handler for choosing `category_name`.
     This handler responds to clicks from `set_category_markup()` and determines the further
     flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -240,7 +227,6 @@ def category_entered_value_handler(message: object) -> None:
     Handler for manual input of `category_name`.
     This handler responds to clicks from `single_cancel_button_markup()` and manual inputting of any text.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -259,7 +245,6 @@ def category_accept_handler(message: object) -> None:
     Handler for manual input of `category_name`.
     This handler responds to clicks from `single_cancel_button_markup()` and manual inputting of any text.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -284,7 +269,6 @@ def set_limit_value_handler(message: object) -> None:
     Handler for manual input of `limit`.
     This handler responds and validates to manual inputting of limit.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -311,7 +295,6 @@ def set_period_handler(message: object) -> None:
     Handler chosing `period`.
     This handler responds to clicks from `set_period_markup()` and manual inputting of any text.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -360,7 +343,8 @@ def set_period_handler(message: object) -> None:
             bot.send_message(message.chat.id, '⚪️ Please, choose a date', reply_markup=calendar_markup)
             if lhelper.handler == 'set_limit':
                 bot.register_next_step_handler(message, calendar_handler)
-            bot.register_next_step_handler(message, calendar_handler_for_get_data)
+            else:
+                bot.register_next_step_handler(message, calendar_handler_for_get_data)
         else:
             bot.send_message(message.chat.id, '🔴 Please select one of the menu items')
             bot.register_next_step_handler(message, set_period_handler)
@@ -371,7 +355,6 @@ def another_value_selected_handler(message: object) -> None:
     Handler for manual input of `period`.
     This handler responds to clicks from `single_cancel_button_markup()` and validates manual inputting of period.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -398,7 +381,6 @@ def calendar_handler(message: object) -> None:
     Handler for calendar.
     This handler responds and validates to clicks from `calendar_markup`.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -432,7 +414,6 @@ def is_repeated_handler(message: object) -> None:
     Handler for choosing `is_repeated` value.
     This handler responds to clicks from `is_repeated_markup()`.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -456,7 +437,6 @@ def set_limit_summary_handler(message):
     Handler for `set_limit_summary`.
     This handler responds to clicks from markup and any text input.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -475,7 +455,6 @@ def set_limit_summary_handler(message):
 def clear_limit(message: object) -> None:
     '''
     Handler for "/clear_limit" command.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -493,7 +472,6 @@ def clear_category_handler(message: object) -> None:
     Handler for choosing `category_name`.
     This handler responds to clicks from `set_category_markup()` and determines the further
     flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -517,7 +495,6 @@ def clear_limit_summary_handler(message):
     Handler for `set_limit_summary`.
     This handler responds to clicks from markup and any text input.
     Determines the further flow of the setting of limit.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -536,7 +513,6 @@ def clear_limit_summary_handler(message):
 def get_data_period(message: object) -> None:
     '''
     Handler for "/get_data_period" command.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -550,7 +526,6 @@ def set_handler_for_existing_categories(message: object) -> None:
     Handler for choosing `category_name`.
     This handler responds to clicks from `set_markup_for_existing_categories()` and determines the further
     flow of the getting data period.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -574,7 +549,6 @@ def calendar_handler_for_get_data(message: object) -> None:
     Handler for calendar.
     This handler responds and validates to clicks from `calendar_markup`.
     Determines the further flow of the getting data for category.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -606,7 +580,6 @@ def calendar_handler_for_get_data(message: object) -> None:
 def set_get_data_summary(message: object) -> None:
     '''
     Function sends message of summary of get data.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -619,7 +592,6 @@ def set_get_data_summary_handler(message):
     Handler for `set_get_data_summary_handler.
     This handler responds to clicks from markup and any text input.
     Determines the further flow of the getting data for category.
-
     :param object message: message object.
     :rtype: None.
     '''
@@ -649,16 +621,16 @@ def get_limit_handler(message: object) -> None:
     if message.text == button_titles.CANCEL:
         cancel(message)
     else:
-        index = 0
+        i = 0
         for item in limit:
-            if message.text in item:
-                index = item[message.text]
+            if message.text in item['title']:
+                i = limit.index(item)
         msg = (
             '🔵Limit for category "{title}"\n' +
             'Limit value: "{limit}"\n' +
             'Limitation period: "{period}"\n' +
             'Budget mode: "{is_repeated}"\n' +
             'Start from: "{start_date}"'
-        ).format(**limit[index])
+        ).format(**limit[i])
 
         bot.send_message(message.chat.id, msg, reply_markup=ReplyKeyboardRemove())

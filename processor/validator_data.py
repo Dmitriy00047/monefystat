@@ -45,7 +45,7 @@ def replace_symbol_from_amount(column: str) -> str:
     '''
     column = column.replace('"', '')
     parts = column.split(',')
-    if len(parts[-1]) < 3:
+    if len(parts) > 1 and len(parts[-1]) < 3:
         return str().join(parts[:-1]) + '.' + parts[-1]
     return str().join(parts)
 
@@ -72,12 +72,13 @@ def read_from_file(file_csv) -> list:
         header = csvfile.readline()
         delimiter = ',' if header.count(',') else ';'
 
-        if header == delimiter.join(title_file):
+        if header.strip() != delimiter.join(title_file):
             raise ValidationError('The content of the file is incorrect')
 
         rows = csv.reader(csvfile, delimiter=delimiter)
         for row in rows:
-            result.append(convert_row(row))
+            if row:
+                result.append(convert_row(row))
     return result
 
 
